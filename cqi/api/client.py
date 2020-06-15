@@ -14,11 +14,11 @@ class APIClient:
     >>> import cqi
     >>> client = cqi.APIClient('127.0.0.1')
     >>> client.ctrl_connect('user', 'password')
-    258
+    258  # CQI_STATUS_CONNECT_OK
     >>> client.ctrl_ping()
-    260
+    260  # CQI_STATUS_PING_OK
     >>> client.ctrl_bye()
-    259
+    259  # CQI_STATUS_BYE_OK
 
     Attributes:
     host (str): URL to the CQP server. For example,

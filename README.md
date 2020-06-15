@@ -12,13 +12,13 @@ The latest stable version [is available on PyPI](https://pypi.python.org/pypi/cq
 
 ```python
 >>> client.connect(username='anonymous', password='')
-{'code': 258, 'msg': 'CQI_STATUS_CONNECT_OK'}
-client.ping()
-{'code': 260, 'msg': 'CQI_STATUS_PING_OK'}
+258  # CQI_STATUS_CONNECT_OK
+>>> client.ping()
+260  # CQI_STATUS_PING_OK
 >>> corpus = client.corpora.get('CORPUS')
 <Corpus: CORPUS>
 >>> corpus.query('"and" []* "the";')
-{'code': 257, 'msg': 'CQI_STATUS_OK'}
+257  # CQI_STATUS_OK
 >>> results = corpus.subcorpora.get('Results')
 <Subcorpus: CORPUS:Results>
 >>> lib = results.export(context=25, cutoff=1, offset=0)
@@ -48,5 +48,5 @@ client.ping()
                                    ...},
                      ...}}
 >>> client.disconnect()
-{'code': 259, 'msg': 'CQI_STATUS_BYE_OK'}
+259  # CQI_STATUS_BYE_OK
 ```
