@@ -10,11 +10,11 @@ class CQiClient:
     >>> import cqi
     >>> client = cqi.CQiClient('127.0.0.1')
     >>> client.connect()
-    {'code': 258, 'msg': 'CQI_STATUS_CONNECT_OK'}
+    258
     >>> client.ping()
-    {'code': 260, 'msg': 'CQI_STATUS_PING_OK'}
+    260
     >>> client.disconnect()
-    {'code': 259, 'msg': 'CQI_STATUS_BYE_OK'}
+    259
 
     Attributes:
     api (APIClient): An API client pointing to the specified CQP server.

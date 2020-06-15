@@ -1,8 +1,8 @@
-from time import sleep
 from . import specification
 from ..errors import cl_error_lookup, error_lookup, cqp_error_lookup
 import socket
 import struct
+import time
 
 
 class APIClient:
@@ -14,11 +14,11 @@ class APIClient:
     >>> import cqi
     >>> client = cqi.APIClient('127.0.0.1')
     >>> client.ctrl_connect('user', 'password')
-    {'code': 258, 'msg': 'CQI_STATUS_CONNECT_OK'}
+    258
     >>> client.ctrl_ping()
-    {'code': 260, 'msg': 'CQI_STATUS_PING_OK'}
+    260
     >>> client.ctrl_bye()
-    {'code': 259, 'msg': 'CQI_STATUS_BYE_OK'}
+    259
 
     Attributes:
     host (str): URL to the CQP server. For example,
@@ -27,10 +27,11 @@ class APIClient:
     socket (socket.socket): Socket for communicating with a CQP server.
     """
 
-    def __init__(self, host, port=4877):
+    def __init__(self, host, port=4877, timeout=5):
         self.host = host
         self.port = port
         self.socket = socket.socket()
+        self.timeout = timeout
 
     def ctrl_connect(self, username, password):
         self.socket.connect((self.host, self.port))
@@ -446,7 +447,7 @@ class APIClient:
         elif response_type == specification.ERROR:
             raise error_lookup[byte_data]()
         elif response_type == specification.STATUS:
-            return {'code': byte_data, 'msg': specification.lookup[byte_data]}
+            return byte_data
         else:
             raise Exception('Unknown response type: {}'.format(response_type))
 
@@ -478,36 +479,46 @@ class APIClient:
         return data
 
     def __recv_DATA_BYTE(self):
-        while True:
+        start_time = time.time()
+        while time.time() - start_time < self.timeout:
             if (len(self.socket.recv(1, socket.MSG_PEEK)) == 1):
                 byte_data = self.socket.recv(1)
                 break
-            sleep(0.1)
+            time.sleep(0.05)
+        else:
+            raise Exception('Timeout: Not enough bytes')
         return struct.unpack('!B', byte_data)[0]
 
     def __recv_DATA_BOOL(self):
-        while True:
+        start_time = time.time()
+        while time.time() - start_time < self.timeout:
             if (len(self.socket.recv(1, socket.MSG_PEEK)) == 1):
                 byte_data = self.socket.recv(1)
                 break
-            sleep(0.1)
+            time.sleep(0.05)
+        else:
+            raise Exception('Timeout: Not enough bytes')
         return struct.unpack('!?', byte_data)[0]
 
     def __recv_DATA_INT(self):
-        while True:
+        start_time = time.time()
+        while time.time() - start_time < self.timeout:
             if (len(self.socket.recv(4, socket.MSG_PEEK)) == 4):
                 byte_data = self.socket.recv(4)
                 break
-            sleep(0.1)
+            time.sleep(0.05)
         return struct.unpack('!i', byte_data)[0]
 
     def __recv_DATA_STRING(self):
         n = self.__recv_WORD()
-        while True:
+        start_time = time.time()
+        while time.time() - start_time < self.timeout:
             if (len(self.socket.recv(n, socket.MSG_PEEK)) == n):
                 byte_data = self.socket.recv(n)
                 break
-            sleep(0.1)
+            time.sleep(0.05)
+        else:
+            raise Exception('Timeout: Not enough bytes')
         return struct.unpack('!{}s'.format(n), byte_data)[0].decode()
 
     def __recv_DATA_BYTE_LIST(self):
@@ -563,11 +574,14 @@ class APIClient:
         return data
 
     def __recv_WORD(self):
-        while True:
+        start_time = time.time()
+        while time.time() - start_time < self.timeout:
             if (len(self.socket.recv(2, socket.MSG_PEEK)) == 2):
                 byte_data = self.socket.recv(2)
                 break
-            sleep(0.1)
+            time.sleep(0.05)
+        else:
+            raise Exception('Timeout: Not enough bytes')
         return struct.unpack('!H', byte_data)[0]
 
     def __send_BYTE(self, byte_data):

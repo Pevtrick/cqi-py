@@ -5,10 +5,10 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="cqi",
-    version="0.1",
+    version="0.1a",
     author="Patrick Jentsch",
     author_email="patrickjentsch@gmx.net",
-    description=('A Python library for the IMS Open Corpus Workbench (CWB)'
+    description=('A Python library for the IMS Open Corpus Workbench (CWB) '
                  'corpus query interface (CQi) API.'),
     long_description=long_description,
     long_description_content_type="text/markdown",

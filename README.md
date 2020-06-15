@@ -10,7 +10,7 @@ The latest stable version [is available on PyPI](https://pypi.python.org/pypi/cq
 
 ## Usage
 
-```
+```python
 >>> client.connect(username='anonymous', password='')
 {'code': 258, 'msg': 'CQI_STATUS_CONNECT_OK'}
 client.ping()
