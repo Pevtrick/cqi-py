@@ -8,6 +8,9 @@ The latest stable version [is available on PyPI](https://pypi.python.org/pypi/cq
 
     pip install cqi
 
+Please note that CQi package version does not correspond to the protocol version it implements.
+- Package version 1.0.0 implements protocol version 0.1
+
 ## Usage
 
 ```python
