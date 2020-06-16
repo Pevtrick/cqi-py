@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="cqi",
-    version="1.0.0",
+    version="1.0.1",
     author="Patrick Jentsch",
     author_email="patrickjentsch@gmx.net",
     description=('A Python library for the IMS Open Corpus Workbench (CWB) '
