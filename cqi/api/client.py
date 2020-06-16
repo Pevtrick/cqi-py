@@ -1,5 +1,7 @@
 from . import specification
-from ..errors import cl_error_lookup, error_lookup, cqp_error_lookup
+from ..errors import (cl_error_lookup, error_lookup, cqp_error_lookup,
+                      CQiException)
+import math
 import socket
 import struct
 import time
@@ -25,9 +27,11 @@ class APIClient:
         ``cqpserver.localhost`` or ``127.0.0.1``.
     port (int): Port the CQP server listens on. Default: ``4877``
     socket (socket.socket): Socket for communicating with a CQP server.
+    timeout (int): Time to wait for bytes from the server. If the timeout is
+        exceeded, an exception is raised. Default: ``math.inf``
     """
 
-    def __init__(self, host, port=4877, timeout=5):
+    def __init__(self, host, port=4877, timeout=math.inf):
         self.host = host
         self.port = port
         self.socket = socket.socket()
@@ -449,7 +453,7 @@ class APIClient:
         elif response_type == specification.STATUS:
             return byte_data
         else:
-            raise Exception('Unknown response type: {}'.format(response_type))
+            raise CQiException('Unknown response type: {}'.format(response_type))
 
     def __recv_DATA(self, data_type):
         if data_type == specification.DATA_BYTE:
@@ -475,50 +479,34 @@ class APIClient:
         elif data_type == specification.DATA_INT_TABLE:
             data = self.__recv_DATA_INT_TABLE()
         else:
-            raise Exception('Unknown data type: {}'.format(data_type))
+            raise CQiException('Unknown data type: {}'.format(data_type))
         return data
 
-    def __recv_DATA_BYTE(self):
+    def __recv_wrapper(self, bufsize):
         start_time = time.time()
         while time.time() - start_time < self.timeout:
-            if (len(self.socket.recv(1, socket.MSG_PEEK)) == 1):
-                byte_data = self.socket.recv(1)
-                break
+            # Check if the server already sent over the desired number of bytes
+            if len(self.socket.recv(bufsize, socket.MSG_PEEK)) == bufsize:
+                return self.socket.recv(bufsize)
             time.sleep(0.05)
         else:
-            raise Exception('Timeout: Not enough bytes')
+            raise CQiException('Timeout: Not enough bytes')
+
+    def __recv_DATA_BYTE(self):
+        byte_data = self.__recv_wrapper(1)
         return struct.unpack('!B', byte_data)[0]
 
     def __recv_DATA_BOOL(self):
-        start_time = time.time()
-        while time.time() - start_time < self.timeout:
-            if (len(self.socket.recv(1, socket.MSG_PEEK)) == 1):
-                byte_data = self.socket.recv(1)
-                break
-            time.sleep(0.05)
-        else:
-            raise Exception('Timeout: Not enough bytes')
+        byte_data = self.__recv_wrapper(1)
         return struct.unpack('!?', byte_data)[0]
 
     def __recv_DATA_INT(self):
-        start_time = time.time()
-        while time.time() - start_time < self.timeout:
-            if (len(self.socket.recv(4, socket.MSG_PEEK)) == 4):
-                byte_data = self.socket.recv(4)
-                break
-            time.sleep(0.05)
+        byte_data = self.__recv_wrapper(4)
         return struct.unpack('!i', byte_data)[0]
 
     def __recv_DATA_STRING(self):
         n = self.__recv_WORD()
-        start_time = time.time()
-        while time.time() - start_time < self.timeout:
-            if (len(self.socket.recv(n, socket.MSG_PEEK)) == n):
-                byte_data = self.socket.recv(n)
-                break
-            time.sleep(0.05)
-        else:
-            raise Exception('Timeout: Not enough bytes')
+        byte_data = self.__recv_wrapper(n)
         return struct.unpack('!{}s'.format(n), byte_data)[0].decode()
 
     def __recv_DATA_BYTE_LIST(self):
@@ -574,14 +562,7 @@ class APIClient:
         return data
 
     def __recv_WORD(self):
-        start_time = time.time()
-        while time.time() - start_time < self.timeout:
-            if (len(self.socket.recv(2, socket.MSG_PEEK)) == 2):
-                byte_data = self.socket.recv(2)
-                break
-            time.sleep(0.05)
-        else:
-            raise Exception('Timeout: Not enough bytes')
+        byte_data = self.__recv_wrapper(2)
         return struct.unpack('!H', byte_data)[0]
 
     def __send_BYTE(self, byte_data):
