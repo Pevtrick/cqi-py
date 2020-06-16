@@ -147,7 +147,7 @@ class StructuralAttribute(Attribute):
         else:
             match = {'lc': lc, 'c': c, 'rc': rc}
         lookups = self.collection.corpus.lookups_by_cpos(cpos_list)
-        return {'match': match, **lookups}
+        return {'matches': [match], **lookups}
 
 
 class StructuralAttributeCollection(AttributeCollection):

@@ -9,7 +9,7 @@ The latest stable version [is available on PyPI](https://pypi.python.org/pypi/cq
     pip install cqi
 
 Please note that CQi package version does not correspond to the protocol version it implements.
-- Package versions 1.0.0 - 1.0.1 implement protocol version 0.1
+- Package versions 1.0.0 - 1.0.2 implement protocol version 0.1
 
 ## Usage
 
@@ -25,9 +25,10 @@ Please note that CQi package version does not correspond to the protocol version
 >>> results = corpus.subcorpora.get('Results')
 <Subcorpus: CORPUS:Results>
 >>> lib = results.export(context=25, cutoff=1, offset=0)
-{'match': {'lc': (<cpos_lbound>, <cpos_rbound>),
-           'c': (<cpos_lbound>, <cpos_rbound>),
-           'rc': (<cpos_lbound>, <cpos_rbound>)},
+{'matches': [{'lc': (<cpos_lbound>, <cpos_rbound>),
+              'c': (<cpos_lbound>, <cpos_rbound>),
+              'rc': (<cpos_lbound>, <cpos_rbound>)},
+             ...],
  'cpos_lookup': {<cpos>: {<p_attr>: <p_attr_value>,
                           ...
                           <s_attr>: <s_attr_id>,
@@ -39,9 +40,9 @@ Please note that CQi package version does not correspond to the protocol version
 >>> s = corpus.structural_attributes.get('s')
 <StructuralAttribute: CORPUS.s>
 >>> lib = s.export(105, 120, context=3)
-{'match': {'lc': (<cpos_lbound>, <cpos_rbound>),
-           'c': (<cpos_lbound>, <cpos_rbound>),
-           'rc': (<cpos_lbound>, <cpos_rbound>)},
+{'matches': [{'lc': (<cpos_lbound>, <cpos_rbound>),
+              'c': (<cpos_lbound>, <cpos_rbound>),
+              'rc': (<cpos_lbound>, <cpos_rbound>)}],
  'cpos_lookup': {<cpos>: {<p_attr>: <p_attr_value>,
                           ...
                           <s_attr>: <s_attr_id>,
