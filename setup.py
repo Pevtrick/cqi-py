@@ -3,9 +3,12 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+version = None
+exec(open('cqi/version.py').read())
+
 setuptools.setup(
     name="cqi",
-    version="1.0.2",
+    version=version,
     author="Patrick Jentsch",
     author_email="patrickjentsch@gmx.net",
     description=('A Python library for the IMS Open Corpus Workbench (CWB) '

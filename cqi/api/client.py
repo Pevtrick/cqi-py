@@ -29,13 +29,15 @@ class APIClient:
     socket (socket.socket): Socket for communicating with a CQP server.
     timeout (int): Time to wait for bytes from the server. If the timeout is
         exceeded, an exception is raised. Default: ``math.inf``
+    version (str): The version of the CQi protocol to use. Default: ``0.1``
     """
 
-    def __init__(self, host, port=4877, timeout=math.inf):
+    def __init__(self, host, port=4877, timeout=math.inf, version='0.1'):
         self.host = host
         self.port = port
         self.socket = socket.socket()
         self.timeout = timeout
+        self.version = version
 
     def ctrl_connect(self, username, password):
         self.socket.connect((self.host, self.port))

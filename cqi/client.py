@@ -21,7 +21,7 @@ class CQiClient:
     api (APIClient): An API client pointing to the specified CQP server.
     """
 
-    def __init__(self, host, port=4877, timeout=math.inf):
+    def __init__(self, host, port=4877, timeout=math.inf, version='0.1'):
         """
         CQiClient constructor
 
@@ -31,8 +31,9 @@ class CQiClient:
         port (int): Port the CQP server listens on. Default: ``4877``
         timeout (int): Time to wait for bytes from the server. If the timeout
             is exceeded, an exception is raised. Default: ``math.inf``
+        version (str): The version of the CQi protocol to use. Default: ``0.1``
         """
-        self.api = APIClient(host, port=port, timeout=timeout)
+        self.api = APIClient(host, port=port, timeout=timeout, version=version)
 
     def connect(self, username='anonymous', password=''):
         status = self.api.ctrl_connect(username, password)

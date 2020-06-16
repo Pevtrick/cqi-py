@@ -9,11 +9,13 @@ The latest stable version [is available on PyPI](https://pypi.python.org/pypi/cq
     pip install cqi
 
 Please note that CQi package version does not correspond to the protocol version it implements.
-- Package versions 1.0.0 - 1.0.2 implement protocol version 0.1
+- Package version 1.0.0-dev implements protocol version 0.1
 
 ## Usage
 
 ```python
+>>> import cqi
+>>> client = cqi.CQiClient('127.0.0.1')
 >>> client.connect(username='anonymous', password='')
 258  # CQI_STATUS_CONNECT_OK
 >>> client.ping()
