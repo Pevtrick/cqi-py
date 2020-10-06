@@ -41,41 +41,41 @@ class Subcorpus(Model):
                                          first_match, last_match),
                                self.dump(self.attrs['fields']['matchend'],
                                          first_match, last_match))
-        cpos_list = []
+        context_cpos_list = []
+        match_cpos_list = []
+        text_count_matches = []
         matches = []
         for match_start, match_end in match_boundaries:
+            match_cpos_list += list(range(match_start, (match_end + 1)))
             c = (match_start, match_end)
             lc = rc = None
-            if context == 0:
-                cpos_list += list(range(match_start, (match_end + 1)))
-            else:
-                lc_rbound = max(0, (match_start - 1))
-                if lc_rbound != match_start:
-                    lc_lbound = max(0, (match_start - context))
-                    lc = (lc_lbound, lc_rbound)
-                    cpos_list_lbound = lc_lbound
-                else:
-                    cpos_list_lbound = match_start
-                rc_lbound = min((match_end + 1),
+            lc_rbound = max(0, (match_start - 1))
+            if lc_rbound != match_start:
+                lc_lbound = max(0, (match_start - context))
+                lc = (lc_lbound, lc_rbound)
+                context_cpos_list_lc = list(range(lc_lbound, lc_rbound + 1))
+            rc_lbound = min((match_end + 1),
+                            (self.collection.corpus.attrs['size'] - 1))
+            if rc_lbound != match_end:
+                rc_rbound = min((match_end + context),
                                 (self.collection.corpus.attrs['size'] - 1))
-                if rc_lbound != match_end:
-                    rc_rbound = min((match_end + context),
-                                    (self.collection.corpus.attrs['size'] - 1))
-                    rc = (rc_lbound, rc_rbound)
-                    cpos_list_rbound = rc_rbound
-                else:
-                    cpos_list_rbound = match_end
-                cpos_list += list(range(cpos_list_lbound,
-                                        (cpos_list_rbound + 1)))
+                rc = (rc_lbound, rc_rbound)
+                context_cpos_list_rc = list(range(rc_lbound, rc_rbound + 1))
+            context_cpos_list += context_cpos_list_lc
+            context_cpos_list += context_cpos_list_rc
             if expand_lists:
                 match = {'lc': list(range(lc[0], (lc[1] + 1))),
                          'c': list(range(c[0], (c[1] + 1))),
                          'rc': list(range(rc[0], (rc[1] + 1)))}
             else:
                 match = {'lc': lc, 'c': c, 'rc': rc}
+            text_count_matches.append(c[0])
             matches.append(match)
-        lookups = self.collection.corpus.lookups_by_cpos(cpos_list)
-        return {'matches': matches, **lookups}
+        if context > 0:
+            context_lookups = self.collection.corpus.lookups_by_cpos(set(context_cpos_list))
+        match_lookups = self.collection.corpus.lookups_by_cpos(set(match_cpos_list), text_count_matches)
+        match_lookups['cpos_lookup'].update(context_lookups['cpos_lookup'])
+        return {'matches': matches, **match_lookups}
 
     def fdist_1(self, cutoff, field, attribute):
         return self.client.api.cqp_fdist_1(self.attrs['api_name'], cutoff,

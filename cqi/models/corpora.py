@@ -20,8 +20,9 @@ class Corpus(Model):
                 # 'full_name' = client.api.corpus_full_name(name),
                 'properties': client.api.corpus_properties(api_name)}
 
-    def lookups_by_cpos(self, cpos_list):
+    def lookups_by_cpos(self, cpos_list, text_count_input=None):
         cpos_list = list(set(cpos_list))
+        text_counter = {}
         lookups = {}
         if cpos_list:
             lookups['cpos_lookup'] = {}
@@ -40,6 +41,16 @@ class Corpus(Model):
                 if cpos_attr_ids[i] != -1:
                     lookups['cpos_lookup'][cpos][attr.attrs['name']] = \
                         cpos_attr_ids[i]
+                # Count text occurances.
+                # If current cpos is first cpos of a match increment
+                # text_counter at corresponding text key by 1.
+                # Maybe rework this in the future. Checking if cpos(int) is in
+                # a long list is ressource heavy.
+                if attr.attrs['name'] == 'text' and text_count_input:
+                    # Check if cpos is position one of a match
+                    if cpos in text_count_input:
+                        # Increment text_counter at corresponding text key by 1
+                        text_counter[cpos_attr_ids[i]] = text_counter.get(cpos_attr_ids[i], 0) + 1
             occured_attr_ids = list(filter(lambda x: x != -1,
                                            set(cpos_attr_ids)))
             if not occured_attr_ids:
@@ -49,6 +60,8 @@ class Corpus(Model):
             if not subattrs:
                 continue
             lookup_name = '{}_lookup'.format(attr.attrs['name'])
+            if text_count_input:
+                pass
             lookups[lookup_name] = {}
             for attr_id in occured_attr_ids:
                 lookups[lookup_name][attr_id] = {}
@@ -59,6 +72,10 @@ class Corpus(Model):
                         subattr.attrs['name'][(len(attr.attrs['name']) + 1):]
                     lookups[lookup_name][occured_attr_ids[i]][subattr_name] = \
                         subattr_value
+        # Set match_count keyword for text_lookup entries with counted
+        # occurances of text_counter.
+        for key in text_counter.keys():
+            lookups['text_lookup'][key]['match_count'] = text_counter[key]
         return lookups
 
     def drop(self):
