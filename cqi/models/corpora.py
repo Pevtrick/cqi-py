@@ -41,7 +41,7 @@ class Corpus(Model):
                 if cpos_attr_ids[i] != -1:
                     lookups['cpos_lookup'][cpos][attr.attrs['name']] = \
                         cpos_attr_ids[i]
-                # Count text occurances.
+                # Count text occurrences.
                 # If current cpos is first cpos of a match increment
                 # text_counter at corresponding text key by 1.
                 # Maybe rework this in the future. Checking if cpos(int) is in
@@ -73,7 +73,7 @@ class Corpus(Model):
                     lookups[lookup_name][occured_attr_ids[i]][subattr_name] = \
                         subattr_value
         # Set match_count keyword for text_lookup entries with counted
-        # occurances of text_counter.
+        # occurrences of text_counter.
         for key in text_counter.keys():
             lookups['text_lookup'][key]['match_count'] = text_counter[key]
         return lookups
