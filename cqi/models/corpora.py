@@ -60,8 +60,6 @@ class Corpus(Model):
             if not subattrs:
                 continue
             lookup_name = '{}_lookup'.format(attr.attrs['name'])
-            if text_count_input:
-                pass
             lookups[lookup_name] = {}
             for attr_id in occured_attr_ids:
                 lookups[lookup_name][attr_id] = {}
