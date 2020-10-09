@@ -78,13 +78,16 @@ class Subcorpus(Model):
         return {'matches': matches, **match_lookups}
 
     def fdist_1(self, cutoff, field, attribute):
-        return self.client.api.cqp_fdist_1(self.attrs['api_name'], cutoff,
-                                           field, attribute._name)
+        return self.client.api.cqp_fdist_1(
+            self.attrs['api_name'], cutoff, field, attribute.attrs['api_name'])
 
     def fdist_2(self, cutoff, field_1, attribute_1, field_2, attribute_2):
-        return self.client.api.cqp_fdist_2(self.attrs['api_name'], cutoff,
-                                           field_1, attribute_1._name,
-                                           field_2, attribute_2._name)
+        return self.client.api.cqp_fdist_2(self.attrs['api_name'],
+                                           cutoff,
+                                           field_1,
+                                           attribute_1.attrs['api_name'],
+                                           field_2,
+                                           attribute_2.attrs['api_name'])
 
 
 class SubcorpusCollection(Collection):
