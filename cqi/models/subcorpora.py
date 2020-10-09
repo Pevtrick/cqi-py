@@ -79,15 +79,15 @@ class Subcorpus(Model):
 
     def fdist_1(self, cutoff, field, attribute):
         return self.client.api.cqp_fdist_1(
-            self.attrs['api_name'], cutoff, field, attribute.attrs['api_name'])
+            self.attrs['api_name'], cutoff, field, attribute.attrs['name'])
 
     def fdist_2(self, cutoff, field_1, attribute_1, field_2, attribute_2):
         return self.client.api.cqp_fdist_2(self.attrs['api_name'],
                                            cutoff,
                                            field_1,
-                                           attribute_1.attrs['api_name'],
+                                           attribute_1.attrs['name'],
                                            field_2,
-                                           attribute_2.attrs['api_name'])
+                                           attribute_2.attrs['name'])
 
 
 class SubcorpusCollection(Collection):
