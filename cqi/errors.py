@@ -2,11 +2,11 @@ from .api import specification
 
 
 class CQiException(Exception):
-    """
+    '''
     A base class from which all other exceptions inherit.
     If you want to catch all errors that the CQi package might raise,
     catch this base exception.
-    """
+    '''
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -60,11 +60,10 @@ class CLErrorNoSuchAttribute(CLError):
         super().__init__(*args, **kwargs)
         self.code = specification.CL_ERROR_NO_SUCH_ATTRIBUTE
         self.name = specification.lookup[self.code]
-        self.description = "CQi server couldn't open attribute"
+        self.description = 'CQi server couldn\'t open attribute'
 
 
 class CLErrorWrongAttributeType(CLError):
-    # CDA_EATTTYPE
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = specification.CL_ERROR_WRONG_ATTRIBUTE_TYPE
@@ -72,7 +71,6 @@ class CLErrorWrongAttributeType(CLError):
 
 
 class CLErrorOutOfRange(CLError):
-    # CDA_EIDORNG, CDA_EIDXORNG, CDA_EPOSORNG
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = specification.CL_ERROR_OUT_OF_RANGE
@@ -80,7 +78,6 @@ class CLErrorOutOfRange(CLError):
 
 
 class CLErrorRegex(CLError):
-    # CDA_EPATTERN (not used), CDA_EBADREGEX
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = specification.CL_ERROR_REGEX
@@ -88,30 +85,32 @@ class CLErrorRegex(CLError):
 
 
 class CLErrorCorpusAccess(CLError):
-    # CDA_ENODATA
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = specification.CL_ERROR_CORPUS_ACCESS
         self.name = specification.lookup[self.code]
+        self.description = ''
 
 
 class CLErrorOutOfMemory(CLError):
-    # CDA_ENOMEM
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = specification.CL_ERROR_OUT_OF_MEMORY
         self.name = specification.lookup[self.code]
-        self.description = ('CQi server has run out of memory; try discarding '
-                            'some other corpora and/or subcorpora')
+        self.description = (
+            'CQi server has run out of memory; try discarding some other '
+            'corpora and/or subcorpora'
+        )
 
 
 class CLErrorInternal(CLError):
-    # CDA_EOTHER, CDA_ENYI
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = specification.CL_ERROR_INTERNAL
         self.name = specification.lookup[self.code]
-        self.description = "Classical 'please contact technical support' error"
+        self.description = (
+            'The classical \'please contact technical support\' error'
+        )
 
 
 class CQPError(CQiException):
