@@ -1,5 +1,6 @@
-from typing import List
-from ..client import CQiClient
+from typing import Dict, List, TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..client import CQiClient
 
 
 class Model:
@@ -10,18 +11,18 @@ class Model:
 
     def __init__(
         self,
-        attrs: dict = None,
-        client: CQiClient = None,
+        attrs: Dict = None,
+        client: 'CQiClient' = None,
         collection: 'Collection' = None
     ):
         #: A client pointing at the server that this object is on.
-        self.client: CQiClient = client
+        self.client: 'CQiClient' = client
 
         #: The collection that this model is part of.
         self.collection: Collection = collection
 
         #: The raw representation of this object from the API
-        self.attrs: dict = attrs or {}
+        self.attrs: Dict = attrs or {}
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__}: {self.id}>'
@@ -44,8 +45,7 @@ class Model:
         Load this object from the server again and update ``attrs`` with the
         new data.
         '''
-        new_model = self.collection.get(self.id)
-        self.attrs = new_model.attrs
+        self.attrs = self.collection.get(self.id).attrs
 
 
 class Collection:
@@ -57,10 +57,10 @@ class Collection:
     #: The type of object this collection represents, set by subclasses
     model: None = None
 
-    def __init__(self, client=None):
+    def __init__(self, client: 'CQiClient' = None):
         #: The client pointing at the server that this collection of objects
         #: is on.
-        self.client: CQiClient = client
+        self.client: 'CQiClient' = client
 
     def list(self) -> List[Model]:
         raise NotImplementedError

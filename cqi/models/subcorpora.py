@@ -1,15 +1,16 @@
-from typing import Dict, List
-from .. import CQiClient
-from .. import status
-from .corpora import Corpus
-from .attributes import PositionalAttribute
-from .resource import Collection, Model
+from typing import Dict, List, TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..client import CQiClient
+    from ..status import StatusOk
+    from .attributes import PositionalAttribute
+    from .corpora import Corpus
 from ..api.specification import (
     CONST_FIELD_KEYWORD,
     CONST_FIELD_MATCH,
     CONST_FIELD_MATCHEND,
     CONST_FIELD_TARGET
 )
+from .resource import Collection, Model
 
 
 class Subcorpus(Model):
@@ -31,7 +32,7 @@ class Subcorpus(Model):
     def size(self) -> int:
         return self.attrs.get('size')
 
-    def drop(self) -> status.StatusOk:
+    def drop(self) -> 'StatusOk':
         return self.client.api.cqp_drop_subcorpus(self.api_name)
 
     def dump(self, field: int, first: int, last: int) -> List[int]:
@@ -46,7 +47,7 @@ class Subcorpus(Model):
         self,
         cutoff: int,
         field: int,
-        attribute: PositionalAttribute
+        attribute: 'PositionalAttribute'
     ) -> List[int]:
         return self.client.api.cqp_fdist_1(
             self.api_name,
@@ -59,9 +60,9 @@ class Subcorpus(Model):
         self,
         cutoff: int,
         field_1: int,
-        attribute_1: PositionalAttribute,
+        attribute_1: 'PositionalAttribute',
         field_2: int,
-        attribute_2: PositionalAttribute
+        attribute_2: 'PositionalAttribute'
     ) -> List[int]:
         return self.client.api.cqp_fdist_2(
             self.api_name,
@@ -76,9 +77,9 @@ class Subcorpus(Model):
 class SubcorpusCollection(Collection):
     model: Subcorpus = Subcorpus
 
-    def __init__(self, client: CQiClient = None, corpus: Corpus = None):
+    def __init__(self, client: 'CQiClient' = None, corpus: 'Corpus' = None):
         super().__init__(client=client)
-        self.corpus: Corpus = corpus
+        self.corpus: 'Corpus' = corpus
 
     def _get(self, subcorpus_name: str) -> Dict:
         api_name: str = f'{self.corpus.api_name}:{subcorpus_name}'

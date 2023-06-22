@@ -1,5 +1,6 @@
-from typing import Dict, List
-from .. import status
+from typing import Dict, List, TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..status import StatusOk
 from .attributes import (
     AlignmentAttributeCollection,
     PositionalAttributeCollection,
@@ -48,10 +49,10 @@ class Corpus(Model):
     def subcorpora(self) -> SubcorpusCollection:
         return SubcorpusCollection(client=self.client, corpus=self)
 
-    def drop(self) -> status.StatusOk:
+    def drop(self) -> 'StatusOk':
         return self.client.api.corpus_drop_corpus(self.api_name)
 
-    def query(self, subcorpus_name: str, query: str) -> status.StatusOk:
+    def query(self, subcorpus_name: str, query: str) -> 'StatusOk':
         return self.client.api.cqp_query(self.api_name, subcorpus_name, query)
 
 

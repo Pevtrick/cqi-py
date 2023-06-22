@@ -1,7 +1,10 @@
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .status import StatusByeOk, StatusConnectOk, StatusPingOk
+import math
 from .api import APIClient
 from .models.corpora import CorpusCollection
-from . import status
-import math
+
 
 
 class CQiClient:
@@ -51,17 +54,17 @@ class CQiClient:
     def corpora(self) -> CorpusCollection:
         return CorpusCollection(client=self)
 
-    def bye(self) -> status.StatusByeOk:
+    def bye(self) -> 'StatusByeOk':
         return self.api.ctrl_bye()
 
     def connect(
         self,
         username: str = 'anonymous',
         password: str = ''
-    ) -> status.StatusConnectOk:
+    ) -> 'StatusConnectOk':
         return self.api.ctrl_connect(username, password)
 
-    def ping(self) -> status.StatusPingOk:
+    def ping(self) -> 'StatusPingOk':
         return self.api.ctrl_ping()
 
     def user_abort(self):

@@ -1,7 +1,8 @@
-from typing import Dict, List, Tuple
-from .. import CQiClient
-from .. import status
-from .corpora import Corpus
+from typing import Dict, List, Tuple, TYPE_CHECKING
+if TYPE_CHECKING:
+    from ..client import CQiClient
+    from ..status import StatusOk
+    from .corpora import Corpus
 from .resource import Collection, Model
 
 
@@ -20,16 +21,16 @@ class Attribute(Model):
     def size(self) -> int:
         return self.attrs.get('size')
 
-    def drop(self) -> status.StatusOk:
+    def drop(self) -> 'StatusOk':
         return self.client.api.cl_drop_attribute(self.api_name)
 
 
 class AttributeCollection(Collection):
     model: Attribute = Attribute
 
-    def __init__(self, client: CQiClient = None, corpus: Corpus = None):
+    def __init__(self, client: 'CQiClient' = None, corpus: 'Corpus' = None):
         super().__init__(client=client)
-        self.corpus: Corpus = corpus
+        self.corpus: 'Corpus' = corpus
 
     def _get(self, attribute_name: str) -> Dict:
         api_name: str = f'{self.corpus.api_name}.{attribute_name}'
