@@ -442,7 +442,7 @@ class APIClient:
         elif response_type == specification.ERROR:
             raise errors.error_lookup[byte_data]()
         elif response_type == specification.STATUS:
-            return status.status_lookup[byte_data]
+            return status.status_lookup[byte_data]()
         else:
             raise errors.CQiException(f'Unknown response type: {response_type}')
 
