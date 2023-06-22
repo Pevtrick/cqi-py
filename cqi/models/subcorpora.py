@@ -3,7 +3,7 @@ from .. import CQiClient
 from .. import status
 from .corpora import Corpus
 from .attributes import PositionalAttribute
-from .ressource import Collection, Model
+from .resource import Collection, Model
 from ..api.specification import (
     CONST_FIELD_KEYWORD,
     CONST_FIELD_MATCH,

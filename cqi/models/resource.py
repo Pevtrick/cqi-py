@@ -77,7 +77,11 @@ class Collection:
             attrs.collection = self
             return attrs
         elif isinstance(attrs, dict):
-            return self.model(attrs=attrs, client=self.client, collection=self)
+            return self.model(
+                attrs=attrs,
+                client=self.client,
+                collection=self
+            )
         else:
             raise Exception(
                 f'Can\'t create {self.model.__name__} from {attrs}'

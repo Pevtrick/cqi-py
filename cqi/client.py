@@ -40,7 +40,12 @@ class CQiClient:
             is exceeded, an exception is raised. Default: ``math.inf``
         version (str): The version of the CQi protocol to use. Default: ``0.1``
         '''
-        self.api = APIClient(host, port=port, timeout=timeout, version=version)
+        self.api: APIClient = APIClient(
+            host,
+            port=port,
+            timeout=timeout,
+            version=version
+        )
 
     @property
     def corpora(self) -> CorpusCollection:

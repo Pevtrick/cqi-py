@@ -5,7 +5,7 @@ from .attributes import (
     PositionalAttributeCollection,
     StructuralAttributeCollection
 )
-from .ressource import Collection, Model
+from .resource import Collection, Model
 from .subcorpora import SubcorpusCollection
 
 

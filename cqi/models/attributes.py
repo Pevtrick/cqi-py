@@ -2,7 +2,7 @@ from typing import Dict, List, Tuple
 from .. import CQiClient
 from .. import status
 from .corpora import Corpus
-from .ressource import Collection, Model
+from .resource import Collection, Model
 
 
 class Attribute(Model):
@@ -144,7 +144,12 @@ class StructuralAttributeCollection(AttributeCollection):
             in self.client.api.corpus_structural_attributes(self.corpus.api_name)
         ]
         for k, v in filters.items():
-            if k == 'part_of':
+            if k == 'has_values':
+                structural_attributes = [
+                    x for x in structural_attributes
+                    if x.has_values == v
+                ]
+            elif k == 'part_of':
                 structural_attributes = [
                     x for x in structural_attributes
                     if x.name.startswith(f'{v.name}_')
