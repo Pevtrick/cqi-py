@@ -207,7 +207,7 @@ class APIClient:
             returns -1 for every corpus position in <cpos> that is out of
             range
         '''
-        self.__send_WORD(specification.CL_ID2FREQ)
+        self.__send_WORD(specification.CL_CPOS2ID)
         self.__send_STRING(attribute)
         self.__send_INT_LIST(cpos)
         return self.__recv_response()
