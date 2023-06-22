@@ -15,6 +15,7 @@ pip install cqi
 | Package version | Protocol version |
 |-----------------|------------------|
 | 0.1.0           | 0.1              |
+| 0.1.1           | 0.1              |
 
 ## Usage
 
