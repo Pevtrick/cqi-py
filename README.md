@@ -1,6 +1,6 @@
 # CQi SDK for Python
 
-A Python library for the [IMS Open Corpus Workbench](http://cwb.sourceforge.net/) (CWB) [corpus query interface](http://cwb.sourceforge.net/cqi.php) (CQi) API.
+A Python library for the [IMS Open Corpus Workbench](http://cwb.sourceforge.net/) (CWB) [Corpus Query Interface](https://cwb.sourceforge.io/documentation.php#cqi) (CQi) API.
 
 ## Installation
 
