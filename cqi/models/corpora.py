@@ -1,4 +1,4 @@
-from typing import Dict, List, TYPE_CHECKING
+from typing import Dict, List, Type, TYPE_CHECKING
 if TYPE_CHECKING:
     from ..status import StatusOk
 from .attributes import (
@@ -11,8 +11,6 @@ from .subcorpora import SubcorpusCollection
 
 
 class Corpus(Model):
-    id_attribute: str = 'api_name'
-
     @property
     def api_name(self) -> str:
         return self.attrs.get('api_name')
@@ -50,22 +48,24 @@ class Corpus(Model):
         return SubcorpusCollection(client=self.client, corpus=self)
 
     def drop(self) -> 'StatusOk':
+        ''' try to unload a corpus and all its attributes from memory '''
         return self.client.api.corpus_drop_corpus(self.api_name)
 
     def query(self, subcorpus_name: str, query: str) -> 'StatusOk':
+        ''' <query> must include the ';' character terminating the query. '''
         return self.client.api.cqp_query(self.api_name, subcorpus_name, query)
 
 
 class CorpusCollection(Collection):
-    model: Corpus = Corpus
+    model: Type[Corpus] = Corpus
 
     def _get(self, corpus_name: str) -> Dict:
         api_name: str = corpus_name
         return {
-            'api_name': corpus_name,
+            'api_name': api_name,
             'charset': self.client.api.corpus_charset(api_name),
-            # 'full_name' = client.api.corpus_full_name(api_name),
-            # 'info': client.api.corpus_info(api_name),
+            # 'full_name': self.client.api.corpus_full_name(api_name),
+            # 'info': self.client.api.corpus_info(api_name),
             'name': corpus_name,
             'properties': self.client.api.corpus_properties(api_name),
             'size': self.client.api.cl_attribute_size(f'{api_name}.word')
@@ -75,7 +75,4 @@ class CorpusCollection(Collection):
         return self.prepare_model(self._get(corpus_name))
 
     def list(self) -> List[Corpus]:
-        return [
-            self.prepare_model(self._get(x)) for x
-            in self.client.api.corpus_list_coprora()
-        ]
+        return [self.get(x) for x in self.client.api.corpus_list_corpora()]

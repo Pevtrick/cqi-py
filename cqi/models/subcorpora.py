@@ -1,4 +1,4 @@
-from typing import Dict, List, TYPE_CHECKING
+from typing import Dict, List, Type, TYPE_CHECKING
 if TYPE_CHECKING:
     from ..client import CQiClient
     from ..status import StatusOk
@@ -14,8 +14,6 @@ from .resource import Collection, Model
 
 
 class Subcorpus(Model):
-    id_attribute: str = 'api_name'
-
     @property
     def api_name(self) -> str:
         return self.attrs.get('api_name')
@@ -33,9 +31,14 @@ class Subcorpus(Model):
         return self.attrs.get('size')
 
     def drop(self) -> 'StatusOk':
+        ''' delete a subcorpus from memory '''
         return self.client.api.cqp_drop_subcorpus(self.api_name)
 
     def dump(self, field: int, first: int, last: int) -> List[int]:
+        '''
+        Dump the values of <field> for match ranges <first> .. <last> in
+        subcorpus. <field> is one of the CQI_CONST_FIELD_* constants.
+        '''
         return self.client.api.cqp_dump_subcorpus(
             self.api_name,
             field,
@@ -49,6 +52,18 @@ class Subcorpus(Model):
         field: int,
         attribute: 'PositionalAttribute'
     ) -> List[int]:
+        '''
+        frequency distribution of single tokens
+
+        returns <n> (id, frequency) pairs flattened into a list of size 2*<n>
+
+        field is one of
+        - CQI_CONST_FIELD_MATCH
+        - CQI_CONST_FIELD_TARGET
+        - CQI_CONST_FIELD_KEYWORD
+
+        NB: pairs are sorted by frequency desc.
+        '''
         return self.client.api.cqp_fdist_1(
             self.api_name,
             cutoff,
@@ -64,6 +79,14 @@ class Subcorpus(Model):
         field_2: int,
         attribute_2: 'PositionalAttribute'
     ) -> List[int]:
+        '''
+        frequency distribution of pairs of tokens
+
+        returns <n> (id1, id2, frequency) pairs flattened into a list of size
+        3*<n>
+
+        NB: triples are sorted by frequency desc.
+        '''
         return self.client.api.cqp_fdist_2(
             self.api_name,
             cutoff,
@@ -75,7 +98,7 @@ class Subcorpus(Model):
 
 
 class SubcorpusCollection(Collection):
-    model: Subcorpus = Subcorpus
+    model: Type[Subcorpus] = Subcorpus
 
     def __init__(self, client: 'CQiClient' = None, corpus: 'Corpus' = None):
         super().__init__(client=client)
@@ -104,6 +127,6 @@ class SubcorpusCollection(Collection):
 
     def list(self) -> List[Subcorpus]:
         return [
-            self.prepare_model(self._get(x)) for x
-            in self.client.api.cqp_list_subcorpora(self.corpus.api_name)
+            self.get(x) for x in
+            self.client.api.cqp_list_subcorpora(self.corpus.api_name)
         ]

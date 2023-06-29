@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple, TYPE_CHECKING
+from typing import Dict, List, Tuple, Type, TYPE_CHECKING
 if TYPE_CHECKING:
     from ..client import CQiClient
     from ..status import StatusOk
@@ -7,8 +7,6 @@ from .resource import Collection, Model
 
 
 class Attribute(Model):
-    id_attribute: str = 'api_name'
-
     @property
     def api_name(self) -> str:
         return self.attrs.get('api_name')
@@ -22,11 +20,12 @@ class Attribute(Model):
         return self.attrs.get('size')
 
     def drop(self) -> 'StatusOk':
+        ''' unload attribute from memory '''
         return self.client.api.cl_drop_attribute(self.api_name)
 
 
 class AttributeCollection(Collection):
-    model: Attribute = Attribute
+    model: Type[Attribute] = Attribute
 
     def __init__(self, client: 'CQiClient' = None, corpus: 'Corpus' = None):
         super().__init__(client=client)
@@ -48,20 +47,22 @@ class AttributeCollection(Collection):
 
 
 class AlignmentAttribute(Attribute):
-    def cpos_by_ids(self, id: int) -> Tuple[int, int, int, int]:
+    def cpos_by_id(self, id: int) -> Tuple[int, int, int, int]:
+        ''' returns (src_start, src_end, target_start, target_end) '''
         return self.client.api.cl_alg2cpos(self.api_name, id)
 
     def ids_by_cpos(self, cpos_list: List[int]) -> List[int]:
+        ''' returns -1 for every corpus position not inside an alignment '''
         return self.client.api.cl_cpos2alg(self.api_name, cpos_list)
 
 
 class AlignmentAttributeCollection(AttributeCollection):
-    model: AlignmentAttribute = AlignmentAttribute
+    model: Type[AlignmentAttribute] = AlignmentAttribute
 
     def list(self) -> List[AlignmentAttribute]:
         return [
-            self.prepare_model(self._get(x)) for x
-            in self.client.api.corpus_alignment_attributes(self.corpus.api_name)
+            self.get(x) for x in
+            self.client.api.corpus_alignment_attributes(self.corpus.api_name)
         ]
 
 
@@ -71,32 +72,55 @@ class PositionalAttribute(Attribute):
         return self.attrs.get('lexicon_size')
 
     def cpos_by_id(self, id: int) -> List[int]:
+        ''' returns all corpus positions where the given token occurs '''
         return self.client.api.cl_id2cpos(self.api_name, id)
 
     def cpos_by_ids(self, id_list: List[int]) -> List[int]:
+        '''
+        returns all corpus positions where one of the tokens in <id_list>
+        occurs; the returned list is sorted as a whole, not per token id
+        '''
         return self.client.api.cl_idlist2cpos(self.api_name, id_list)
 
     def freqs_by_ids(self, id_list: List[int]) -> List[int]:
+        ''' returns 0 for every ID in <id_list> that is out of range '''
         return self.client.api.cl_id2freq(self.api_name, id_list)
 
     def ids_by_cpos(self, cpos_list: List[int]) -> List[int]:
+        '''
+        returns -1 for every corpus position in <cpos_list> that is out of
+        range
+        '''
         return self.client.api.cl_cpos2id(self.api_name, cpos_list)
 
     def ids_by_regex(self, regex: str) -> List[int]:
+        '''
+        returns lexicon IDs of all tokens that match <regex>; the returned
+        list may be empty (size 0);
+        '''
         return self.client.api.cl_regex2id(self.api_name, regex)
 
     def ids_by_values(self, value_list: List[str]) -> List[int]:
+        '''
+        returns -1 for every string in <value_list> that is not found in the
+        lexicon
+        '''
         return self.client.api.cl_str2id(self.api_name, value_list)
 
     def values_by_cpos(self, cpos_list: List[int]) -> List[str]:
+        '''
+        returns "" for every corpus position in <cpos_list> that is out of
+        range
+        '''
         return self.client.api.cl_cpos2str(self.api_name, cpos_list)
 
     def values_by_ids(self, id_list: List[int]) -> List[str]:
+        ''' returns "" for every ID in <id_list> that is out of range '''
         return self.client.api.cl_id2str(self.api_name, id_list)
 
 
 class PositionalAttributeCollection(AttributeCollection):
-    model: PositionalAttribute = PositionalAttribute
+    model: Type[PositionalAttribute] = PositionalAttribute
 
     def _get(self, positional_attribute_name: str) -> Dict:
         attrs = super()._get(positional_attribute_name)
@@ -105,8 +129,8 @@ class PositionalAttributeCollection(AttributeCollection):
 
     def list(self) -> List[PositionalAttribute]:
         return [
-            self.prepare_model(self._get(x)) for x
-            in self.client.api.corpus_positional_attributes(self.corpus.api_name)
+            self.get(x) for x in
+            self.client.api.corpus_positional_attributes(self.corpus.api_name)
         ]
 
 
@@ -116,23 +140,44 @@ class StructuralAttribute(Attribute):
         return self.attrs.get('has_values')
 
     def cpos_by_id(self, id: int) -> Tuple[int, int]:
+        '''
+        returns start and end corpus positions of structure region with id
+        <id>
+        '''
         return self.client.api.cl_struc2cpos(self.api_name, id)
 
     def ids_by_cpos(self, cpos_list: List[int]) -> List[int]:
+        '''
+        returns -1 for every corpus position not inside a structure region
+        '''
         return self.client.api.cl_cpos2struc(self.api_name, cpos_list)
 
     def lbound_by_cpos(self, cpos_list: List[int]) -> List[int]:
+        '''
+        returns left boundary of s-attribute region enclosing cpos, -1 if not
+        in region
+        '''
         return self.client.api.cl_cpos2lbound(self.api_name, cpos_list)
 
     def rbound_by_cpos(self, cpos_list: List[int]) -> List[int]:
+        '''
+        returns right boundary of s-attribute region enclosing cpos, -1 if not
+        in region
+        '''
         return self.client.api.cl_cpos2rbound(self.api_name, cpos_list)
 
-    def values_by_ids(self, id_list: List[int]) -> List[int]:
+    def values_by_ids(self, id_list: List[int]) -> List[str]:
+        '''
+        returns annotated string values of structure regions in <id_list>; ""
+        if out of range
+
+        check has_values property first
+        '''
         return self.client.api.cl_struc2str(self.api_name, id_list)
 
 
 class StructuralAttributeCollection(AttributeCollection):
-    model: StructuralAttribute = StructuralAttribute
+    model: Type[StructuralAttribute] = StructuralAttribute
 
     def _get(self, structural_attribute_name: str) -> Dict:
         attrs = super()._get(structural_attribute_name)
@@ -141,8 +186,8 @@ class StructuralAttributeCollection(AttributeCollection):
 
     def list(self, filters: Dict = {}) -> List[StructuralAttribute]:
         structural_attributes = [
-            self.prepare_model(self._get(x)) for x
-            in self.client.api.corpus_structural_attributes(self.corpus.api_name)
+            self.get(x) for x in
+            self.client.api.corpus_structural_attributes(self.corpus.api_name)
         ]
         for k, v in filters.items():
             if k == 'has_values':

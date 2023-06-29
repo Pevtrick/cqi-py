@@ -72,8 +72,8 @@ class APIClient:
 
     def ctrl_last_general_error(self) -> str:
         ''' 
-            Full-text error message for the last general error reported by the
-            CQi server
+        Full-text error message for the last general error reported by the CQi
+        server
         '''
         self.__send_WORD(specification.CTRL_LAST_GENERAL_ERROR)
         return self.__recv_response()
@@ -90,7 +90,7 @@ class APIClient:
         self.__send_WORD(specification.ASK_FEATURE_CL_2_3)
         return self.__recv_response()
 
-    def corpus_list_coprora(self) -> List[str]:
+    def corpus_list_corpora(self) -> List[str]:
         self.__send_WORD(specification.CORPUS_LIST_CORPORA)
         return self.__recv_response()
 
@@ -132,8 +132,7 @@ class APIClient:
 
     def corpus_info(self, corpus: str) -> List[str]:
         ''' 
-            returns the contents of the .info file of <corpus> as a list of
-            lines
+        returns the contents of the .info file of <corpus> as a list of lines
         '''
         self.__send_WORD(specification.CORPUS_INFO)
         self.__send_STRING(corpus)
@@ -147,10 +146,10 @@ class APIClient:
 
     def cl_attribute_size(self, attribute: str) -> int:
         ''' 
-            returns the size of <attribute>:
-            - number of tokens        (positional)
-            - number of regions       (structural)
-            - number of alignments    (alignment)
+        returns the size of <attribute>:
+        - number of tokens        (positional)
+        - number of regions       (structural)
+        - number of alignments    (alignment)
         '''
         self.__send_WORD(specification.CL_ATTRIBUTE_SIZE)
         self.__send_STRING(attribute)
@@ -158,10 +157,10 @@ class APIClient:
 
     def cl_lexicon_size(self, attribute: str) -> int:
         '''
-            returns the number of entries in the lexicon of a positional
-            attribute;
+        returns the number of entries in the lexicon of a positional
+        attribute;
 
-            valid lexicon IDs range from 0 .. (lexicon_size - 1)
+        valid lexicon IDs range from 0 .. (lexicon_size - 1)
         '''
         self.__send_WORD(specification.CL_LEXICON_SIZE)
         self.__send_STRING(attribute)
@@ -180,8 +179,8 @@ class APIClient:
 
     def cl_str2id(self, attribute: str, strings: List[str]) -> List[int]:
         '''
-            returns -1 for every string in <strings> that is not found in the
-            lexicon
+        returns -1 for every string in <strings> that is not found in the
+        lexicon
         '''
         self.__send_WORD(specification.CL_STR2ID)
         self.__send_STRING(attribute)
@@ -204,8 +203,7 @@ class APIClient:
 
     def cl_cpos2id(self, attribute: str, cpos: List[int]) -> List[int]:
         ''' 
-            returns -1 for every corpus position in <cpos> that is out of
-            range
+        returns -1 for every corpus position in <cpos> that is out of range
         '''
         self.__send_WORD(specification.CL_CPOS2ID)
         self.__send_STRING(attribute)
@@ -214,8 +212,7 @@ class APIClient:
 
     def cl_cpos2str(self, attribute: str, cpos: List[int]) -> List[str]:
         '''
-            returns "" for every corpus position in <cpos> that is out of
-            range
+        returns "" for every corpus position in <cpos> that is out of range
         '''
         self.__send_WORD(specification.CL_CPOS2STR)
         self.__send_STRING(attribute)
@@ -224,7 +221,7 @@ class APIClient:
 
     def cl_cpos2struc(self, attribute: str, cpos: List[int]) -> List[int]:
         '''
-            returns -1 for every corpus position not inside a structure region
+        returns -1 for every corpus position not inside a structure region
         '''
         self.__send_WORD(specification.CL_CPOS2STRUC)
         self.__send_STRING(attribute)
@@ -238,8 +235,8 @@ class APIClient:
 
     def cl_cpos2lbound(self, attribute: str, cpos: List[int]) -> List[int]:
         '''
-            returns left boundary of s-attribute region enclosing cpos, -1 if
-            not in region
+        returns left boundary of s-attribute region enclosing cpos, -1 if not
+        in region
         '''
         self.__send_WORD(specification.CL_CPOS2LBOUND)
         self.__send_STRING(attribute)
@@ -248,8 +245,8 @@ class APIClient:
 
     def cl_cpos2rbound(self, attribute: str, cpos: List[int]) -> List[int]:
         '''
-            returns right boundary of s-attribute region enclosing cpos, -1 if
-            not in region
+        returns right boundary of s-attribute region enclosing cpos, -1 if not
+        in region
         '''
         self.__send_WORD(specification.CL_CPOS2RBOUND)
         self.__send_STRING(attribute)
@@ -265,10 +262,10 @@ class APIClient:
 
     def cl_struc2str(self, attribute: str, strucs: List[int]) -> List[str]:
         '''
-            returns annotated string values of structure regions in <strucs>;
-            "" if out of range
+        returns annotated string values of structure regions in <strucs>;
+        "" if out of range
 
-            check corpus_structural_attribute_has_values(<attribute>) first
+        check corpus_structural_attribute_has_values(<attribute>) first
         '''
         self.__send_WORD(specification.CL_STRUC2STR)
         self.__send_STRING(attribute)
@@ -289,8 +286,8 @@ class APIClient:
 
     def cl_idlist2cpos(self, attribute: str, id_list: List[int]) -> List[int]:
         '''
-            returns all corpus positions where one of the tokens in <id_list>
-            occurs; the returned list is sorted as a whole, not per token id
+        returns all corpus positions where one of the tokens in <id_list>
+        occurs; the returned list is sorted as a whole, not per token id
         '''
         self.__send_WORD(specification.CL_IDLIST2CPOS)
         self.__send_STRING(attribute)
@@ -299,8 +296,8 @@ class APIClient:
 
     def cl_regex2id(self, attribute: str, regex: str) -> List[int]:
         '''
-            returns lexicon IDs of all tokens that match <regex>; the returned
-            list may be empty (size 0);
+        returns lexicon IDs of all tokens that match <regex>; the returned
+        list may be empty (size 0);
         '''
         self.__send_WORD(specification.CL_REGEX2ID)
         self.__send_STRING(attribute)
@@ -309,7 +306,7 @@ class APIClient:
 
     def cl_struc2cpos(self, attribute: str, struc: int) -> Tuple[int, int]:
         '''
-            returns start and end corpus positions of structure region <struc>
+        returns start and end corpus positions of structure region <struc>
         '''
         self.__send_WORD(specification.CL_STRUC2CPOS)
         self.__send_STRING(attribute)
@@ -359,8 +356,8 @@ class APIClient:
         last: int
     ) -> List[int]:
         '''
-            Dump the values of <field> for match ranges <first> .. <last>
-            in <subcorpus>. <field> is one of the CQI_CONST_FIELD_* constants.
+        Dump the values of <field> for match ranges <first> .. <last> in
+        <subcorpus>. <field> is one of the CQI_CONST_FIELD_* constants.
         '''
         self.__send_WORD(specification.CQP_DUMP_SUBCORPUS)
         self.__send_STRING(subcorpus)
@@ -387,16 +384,17 @@ class APIClient:
         field: int,
         attribute: str
     ) -> List[int]:
-        ''' frequency distribution of single tokens
+        '''
+        frequency distribution of single tokens
 
-            returns <n> (id, frequency) pairs flattened into a list of size
-            2*<n>
-            field is one of
-            - CQI_CONST_FIELD_MATCH
-            - CQI_CONST_FIELD_TARGET
-            - CQI_CONST_FIELD_KEYWORD
+        returns <n> (id, frequency) pairs flattened into a list of size 2*<n>
 
-            NB: pairs are sorted by frequency desc.
+        field is one of
+        - CQI_CONST_FIELD_MATCH
+        - CQI_CONST_FIELD_TARGET
+        - CQI_CONST_FIELD_KEYWORD
+
+        NB: pairs are sorted by frequency desc.
         '''
         self.__send_WORD(specification.CQP_FDIST_1)
         self.__send_STRING(subcorpus)
@@ -414,12 +412,13 @@ class APIClient:
         field2: int,
         attribute2: str
     ) -> List[int]:
-        ''' frequency distribution of pairs of tokens
+        '''
+        frequency distribution of pairs of tokens
 
-            returns <n> (id1, id2, frequency) pairs flattened into a list of
-            size 3*<n>
+        returns <n> (id1, id2, frequency) pairs flattened into a list of size
+        3*<n>
 
-            NB: triples are sorted by frequency desc.
+        NB: triples are sorted by frequency desc.
         '''
         self.__send_WORD(specification.CQP_FDIST_2)
         self.__send_STRING(subcorpus)

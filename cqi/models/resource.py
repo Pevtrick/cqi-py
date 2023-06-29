@@ -1,4 +1,4 @@
-from typing import Dict, List, TYPE_CHECKING
+from typing import Dict, List, Type, TYPE_CHECKING
 if TYPE_CHECKING:
     from ..client import CQiClient
 
@@ -7,7 +7,6 @@ class Model:
     '''
     A base class for representing a single object on the server.
     '''
-    id_attribute: str = 'Id'
 
     def __init__(
         self,
@@ -34,18 +33,15 @@ class Model:
         return hash(f'{self.__class__.__name__}:{self.id}')
 
     @property
-    def id(self) -> str:
-        '''
-        The ID of the object.
-        '''
-        return self.attrs.get(self.id_attribute)
+    def api_name(self) -> str:
+        raise NotImplementedError
 
     def reload(self):
         '''
         Load this object from the server again and update ``attrs`` with the
         new data.
         '''
-        self.attrs = self.collection.get(self.id).attrs
+        self.attrs = self.collection.get(self.api_name).attrs
 
 
 class Collection:
@@ -55,7 +51,7 @@ class Collection:
     '''
 
     #: The type of object this collection represents, set by subclasses
-    model: None = None
+    model: Type[Model] = Model
 
     def __init__(self, client: 'CQiClient' = None):
         #: The client pointing at the server that this collection of objects
@@ -65,7 +61,7 @@ class Collection:
     def list(self) -> List[Model]:
         raise NotImplementedError
 
-    def get(self, key) -> Model:
+    def get(self) -> Model:
         raise NotImplementedError
 
     def prepare_model(self, attrs) -> Model:

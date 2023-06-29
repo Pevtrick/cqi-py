@@ -11,7 +11,6 @@ class CQiException(Exception):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = None
-        self.name = None
         self.description = None
 
 
@@ -25,28 +24,24 @@ class ErrorGeneralError(Error):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = specification.ERROR_GENERAL_ERROR
-        self.name = specification.lookup[self.code]
 
 
 class ErrorConnectRefused(Error):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = specification.ERROR_CONNECT_REFUSED
-        self.name = specification.lookup[self.code]
 
 
 class ErrorUserAbort(Error):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = specification.ERROR_USER_ABORT
-        self.name = specification.lookup[self.code]
 
 
 class ErrorSyntaxError(Error):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = specification.ERROR_SYNTAX_ERROR
-        self.name = specification.lookup[self.code]
 
 
 class CLError(CQiException):
@@ -59,7 +54,6 @@ class CLErrorNoSuchAttribute(CLError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = specification.CL_ERROR_NO_SUCH_ATTRIBUTE
-        self.name = specification.lookup[self.code]
         self.description = 'CQi server couldn\'t open attribute'
 
 
@@ -67,28 +61,24 @@ class CLErrorWrongAttributeType(CLError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = specification.CL_ERROR_WRONG_ATTRIBUTE_TYPE
-        self.name = specification.lookup[self.code]
 
 
 class CLErrorOutOfRange(CLError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = specification.CL_ERROR_OUT_OF_RANGE
-        self.name = specification.lookup[self.code]
 
 
 class CLErrorRegex(CLError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = specification.CL_ERROR_REGEX
-        self.name = specification.lookup[self.code]
 
 
 class CLErrorCorpusAccess(CLError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = specification.CL_ERROR_CORPUS_ACCESS
-        self.name = specification.lookup[self.code]
         self.description = ''
 
 
@@ -96,7 +86,6 @@ class CLErrorOutOfMemory(CLError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = specification.CL_ERROR_OUT_OF_MEMORY
-        self.name = specification.lookup[self.code]
         self.description = (
             'CQi server has run out of memory; try discarding some other '
             'corpora and/or subcorpora'
@@ -107,7 +96,6 @@ class CLErrorInternal(CLError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = specification.CL_ERROR_INTERNAL
-        self.name = specification.lookup[self.code]
         self.description = (
             'The classical \'please contact technical support\' error'
         )
@@ -124,28 +112,24 @@ class CQPErrorGeneral(CQPError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = specification.CQP_ERROR_GENERAL
-        self.name = specification.lookup[self.code]
 
 
 class CQPErrorNoSuchCorpus(CQPError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = specification.CQP_ERROR_NO_SUCH_CORPUS
-        self.name = specification.lookup[self.code]
 
 
 class CQPErrorInvalidField(CQPError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = specification.CQP_ERROR_INVALID_FIELD
-        self.name = specification.lookup[self.code]
 
 
 class CQPErrorOutOfRange(CQPError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code = specification.CQP_ERROR_OUT_OF_RANGE
-        self.name = specification.lookup[self.code]
         self.description = 'A number is out of range'
 
 
