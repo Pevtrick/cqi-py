@@ -1,5 +1,4 @@
 from typing import List, Tuple
-import math
 import socket
 import struct
 import time
@@ -28,8 +27,7 @@ class APIClient:
         ``cqpserver.localhost`` or ``127.0.0.1``.
     port (int): Port the CQP server listens on. Default: ``4877``
     socket (socket.socket): Socket for communicating with a CQP server.
-    timeout (int): Time to wait for bytes from the server. If the timeout is
-        exceeded, an exception is raised. Default: ``math.inf``
+    timeout (int): Default timeout for API calls, in seconds. Default: ``60``
     version (str): The version of the CQi protocol to use. Default: ``0.1``
     '''
 
@@ -37,13 +35,13 @@ class APIClient:
         self,
         host: str,
         port: int = 4877,
-        timeout: float = math.inf,
+        timeout: int = 60,
         version: str = '0.1'
     ):
         self.host: str = host
         self.port: int = port
         self.socket: socket.socket = socket.socket()
-        self.timeout: float = timeout
+        self.timeout: int = timeout
         self.version: str = version
 
     def ctrl_connect(

@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .status import StatusByeOk, StatusConnectOk, StatusPingOk
-import math
 from .api import APIClient
 from .models.corpora import CorpusCollection
 
@@ -29,7 +28,7 @@ class CQiClient:
         self,
         host: str,
         port: int = 4877,
-        timeout: float = math.inf,
+        timeout: int = 60,
         version: str = '0.1'
     ):
         '''
@@ -39,8 +38,7 @@ class CQiClient:
         host (str): URL to the CQP server. For example,
             ``cqpserver.localhost`` or ``127.0.0.1``.
         port (int): Port the CQP server listens on. Default: ``4877``
-        timeout (int): Time to wait for bytes from the server. If the timeout
-            is exceeded, an exception is raised. Default: ``math.inf``
+        timeout (int): Default timeout for API calls, in seconds. Default: ``60``
         version (str): The version of the CQi protocol to use. Default: ``0.1``
         '''
         self.api: APIClient = APIClient(
