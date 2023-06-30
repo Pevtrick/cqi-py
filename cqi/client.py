@@ -57,11 +57,7 @@ class CQiClient:
     def bye(self) -> 'StatusByeOk':
         return self.api.ctrl_bye()
 
-    def connect(
-        self,
-        username: str = 'anonymous',
-        password: str = ''
-    ) -> 'StatusConnectOk':
+    def connect(self, username: str, password: str) -> 'StatusConnectOk':
         return self.api.ctrl_connect(username, password)
 
     def ping(self) -> 'StatusPingOk':
