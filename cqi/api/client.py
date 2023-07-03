@@ -430,18 +430,12 @@ class APIClient:
     def __recv_response(self):
         byte_data = self.__recv_WORD()
         response_type = byte_data >> 8
-        if response_type == specification.CL_ERROR:
-            raise errors.cl_error_lookup[byte_data]()
-        elif response_type == specification.CQP_ERROR:
-            raise errors.cqp_error_lookup[byte_data]()
-        elif response_type == specification.DATA:
+        if response_type == specification.DATA:
             return self.__recv_DATA(byte_data)
-        elif response_type == specification.ERROR:
-            raise errors.error_lookup[byte_data]()
         elif response_type == specification.STATUS:
-            return status.status_lookup[byte_data]()
+            return status.lookup[byte_data]()
         else:
-            raise errors.CQiException(f'Unknown response type: {response_type}')
+            raise errors.lookup.get(byte_data, errors.CQiException)()
 
     def __recv_DATA(self, data_type):
         if data_type == specification.DATA_BYTE:

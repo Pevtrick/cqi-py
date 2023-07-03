@@ -33,7 +33,7 @@ class StatusPingOk(CQiStatus):
         self.code = specification.STATUS_PING_OK
 
 
-status_lookup = {
+lookup = {
     specification.STATUS_OK: StatusOk,
     specification.STATUS_CONNECT_OK: StatusConnectOk,
     specification.STATUS_BYE_OK: StatusByeOk,
