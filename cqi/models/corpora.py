@@ -61,6 +61,14 @@ class CorpusCollection(Collection):
 
     def _get(self, corpus_name: str) -> Dict:
         api_name: str = corpus_name
+        p_attr_names: List[str] = \
+            self.client.api.corpus_positional_attributes(api_name)
+        if len(p_attr_names) == 0:
+            size: None = None
+        else:
+            size: int = self.client.api.cl_attribute_size(
+                f'{api_name}.{p_attr_names[0]}'
+            )
         return {
             'api_name': api_name,
             'charset': self.client.api.corpus_charset(api_name),
@@ -68,7 +76,7 @@ class CorpusCollection(Collection):
             # 'info': self.client.api.corpus_info(api_name),
             'name': corpus_name,
             'properties': self.client.api.corpus_properties(api_name),
-            'size': self.client.api.cl_attribute_size(f'{api_name}.word')
+            'size': size
         }
 
     def get(self, corpus_name: str) -> Corpus:
