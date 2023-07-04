@@ -9,15 +9,15 @@ from .resource import Collection, Model
 class Attribute(Model):
     @property
     def api_name(self) -> str:
-        return self.attrs.get('api_name')
+        return self.attrs['api_name']
 
     @property
     def name(self) -> str:
-        return self.attrs.get('name')
+        return self.attrs['name']
 
     @property
     def size(self) -> int:
-        return self.attrs.get('size')
+        return self.attrs['size']
 
     def drop(self) -> 'StatusOk':
         ''' unload attribute from memory '''
@@ -69,7 +69,7 @@ class AlignmentAttributeCollection(AttributeCollection):
 class PositionalAttribute(Attribute):
     @property
     def lexicon_size(self) -> int:
-        return self.attrs.get('lexicon_size')
+        return self.attrs['lexicon_size']
 
     def cpos_by_id(self, id: int) -> List[int]:
         ''' returns all corpus positions where the given token occurs '''
@@ -137,7 +137,7 @@ class PositionalAttributeCollection(AttributeCollection):
 class StructuralAttribute(Attribute):
     @property
     def has_values(self) -> bool:
-        return self.attrs.get('has_values')
+        return self.attrs['has_values']
 
     def cpos_by_id(self, id: int) -> Tuple[int, int]:
         '''

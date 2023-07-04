@@ -16,19 +16,19 @@ from .resource import Collection, Model
 class Subcorpus(Model):
     @property
     def api_name(self) -> str:
-        return self.attrs.get('api_name')
+        return self.attrs['api_name']
 
     @property
     def fields(self) -> Dict[str, int]:
-        return self.attrs.get('fields')
+        return self.attrs['fields']
 
     @property
     def name(self) -> str:
-        return self.attrs.get('name')
+        return self.attrs['name']
 
     @property
     def size(self) -> int:
-        return self.attrs.get('size')
+        return self.attrs['size']
 
     def drop(self) -> 'StatusOk':
         ''' delete a subcorpus from memory '''

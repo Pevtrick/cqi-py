@@ -24,13 +24,16 @@ class Model:
         self.attrs: Dict = attrs or {}
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__}: {self.id}>'
+        return f'<{self.__class__.__name__}: {self.api_name}>'
 
     def __eq__(self, other) -> bool:
-        return isinstance(other, self.__class__) and self.id == other.id
+        return (
+            isinstance(other, self.__class__)
+            and self.api_name == other.api_name
+        )
 
     def __hash__(self) -> int:
-        return hash(f'{self.__class__.__name__}:{self.id}')
+        return hash(f'{self.__class__.__name__}:{self.api_name}')
 
     @property
     def api_name(self) -> str:
@@ -79,6 +82,4 @@ class Collection:
                 collection=self
             )
         else:
-            raise Exception(
-                f'Can\'t create {self.model.__name__} from {attrs}'
-            )
+            raise Exception(f"Can't create {self.model.__name__} from {attrs}")

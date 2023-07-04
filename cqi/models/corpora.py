@@ -13,23 +13,23 @@ from .subcorpora import SubcorpusCollection
 class Corpus(Model):
     @property
     def api_name(self) -> str:
-        return self.attrs.get('api_name')
+        return self.attrs['api_name']
 
     @property
     def name(self) -> str:
-        return self.attrs.get('name')
+        return self.attrs['name']
 
     @property
     def size(self) -> int:
-        return self.attrs.get('size')
+        return self.attrs['size']
 
     @property
     def charset(self) -> str:
-        return self.attrs.get('charset')
+        return self.attrs['charset']
 
     @property
     def properties(self) -> List[str]:
-        return self.attrs.get('properties')
+        return self.attrs['properties']
 
     @property
     def alignment_attributes(self) -> AlignmentAttributeCollection:
@@ -61,14 +61,11 @@ class CorpusCollection(Collection):
 
     def _get(self, corpus_name: str) -> Dict:
         api_name: str = corpus_name
-        p_attr_names: List[str] = \
-            self.client.api.corpus_positional_attributes(api_name)
-        if len(p_attr_names) == 0:
-            size: None = None
-        else:
-            size: int = self.client.api.cl_attribute_size(
-                f'{api_name}.{p_attr_names[0]}'
-            )
+        p_attr_names: List[str] = self.client.api.corpus_positional_attributes(api_name)
+        corpus_size: int = (
+            0 if len(p_attr_names) == 0 else
+            self.client.api.cl_attribute_size(f'{api_name}.{p_attr_names[0]}')
+        )
         return {
             'api_name': api_name,
             'charset': self.client.api.corpus_charset(api_name),
@@ -76,7 +73,7 @@ class CorpusCollection(Collection):
             # 'info': self.client.api.corpus_info(api_name),
             'name': corpus_name,
             'properties': self.client.api.corpus_properties(api_name),
-            'size': size
+            'size': corpus_size
         }
 
     def get(self, corpus_name: str) -> Corpus:
