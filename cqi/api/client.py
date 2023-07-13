@@ -165,7 +165,13 @@ class APIClient:
         return self.__recv_response()
 
     def cl_drop_attribute(self, attribute: str) -> status.StatusOk:
-        ''' unload attribute from memory '''
+        '''
+        unload attribute from memory
+
+        Note: Not implemented on the server side:
+              https://sourceforge.net/p/cwb/code/HEAD/tree/cwb/trunk/CQi/cqpserver.c#l356
+        '''
+        raise NotImplementedError
         self.__send_WORD(specification.CL_DROP_ATTRIBUTE)
         self.__send_STRING(attribute)
         return self.__recv_response()
