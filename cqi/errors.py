@@ -1,3 +1,4 @@
+from typing import Dict, Optional, Type
 from .api import specification
 
 
@@ -10,83 +11,82 @@ class CQiException(Exception):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = None
-        self.description = None
+        self.code: Optional[int] = None
+        self.description: Optional[str] = None
 
 
 class Error(CQiException):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.ERROR
+        self.code: int = specification.ERROR
 
 
 class ErrorGeneralError(Error):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.ERROR_GENERAL_ERROR
+        self.code: int = specification.ERROR_GENERAL_ERROR
 
 
 class ErrorConnectRefused(Error):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.ERROR_CONNECT_REFUSED
+        self.code: int = specification.ERROR_CONNECT_REFUSED
 
 
 class ErrorUserAbort(Error):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.ERROR_USER_ABORT
+        self.code: int = specification.ERROR_USER_ABORT
 
 
 class ErrorSyntaxError(Error):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.ERROR_SYNTAX_ERROR
+        self.code: int = specification.ERROR_SYNTAX_ERROR
 
 
 class CLError(CQiException):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.CL_ERROR
+        self.code: int = specification.CL_ERROR
 
 
 class CLErrorNoSuchAttribute(CLError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.CL_ERROR_NO_SUCH_ATTRIBUTE
-        self.description = 'CQi server couldn\'t open attribute'
+        self.code: int = specification.CL_ERROR_NO_SUCH_ATTRIBUTE
+        self.description: str = "CQi server couldn't open attribute"
 
 
 class CLErrorWrongAttributeType(CLError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.CL_ERROR_WRONG_ATTRIBUTE_TYPE
+        self.code: int = specification.CL_ERROR_WRONG_ATTRIBUTE_TYPE
 
 
 class CLErrorOutOfRange(CLError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.CL_ERROR_OUT_OF_RANGE
+        self.code: int = specification.CL_ERROR_OUT_OF_RANGE
 
 
 class CLErrorRegex(CLError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.CL_ERROR_REGEX
+        self.code: int = specification.CL_ERROR_REGEX
 
 
 class CLErrorCorpusAccess(CLError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.CL_ERROR_CORPUS_ACCESS
-        self.description = ''
+        self.code: int = specification.CL_ERROR_CORPUS_ACCESS
 
 
 class CLErrorOutOfMemory(CLError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.CL_ERROR_OUT_OF_MEMORY
-        self.description = (
+        self.code: int = specification.CL_ERROR_OUT_OF_MEMORY
+        self.description: str = (
             'CQi server has run out of memory; try discarding some other '
             'corpora and/or subcorpora'
         )
@@ -95,9 +95,9 @@ class CLErrorOutOfMemory(CLError):
 class CLErrorInternal(CLError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.CL_ERROR_INTERNAL
-        self.description = (
-            'The classical \'please contact technical support\' error'
+        self.code: int = specification.CL_ERROR_INTERNAL
+        self.description: str = (
+            "The classical 'please contact technical support' error"
         )
 
 
@@ -105,35 +105,35 @@ class CQPError(CQiException):
     # CQP error messages yet to be defined
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.CQP_ERROR
+        self.code: int = specification.CQP_ERROR
 
 
 class CQPErrorGeneral(CQPError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.CQP_ERROR_GENERAL
+        self.code: int = specification.CQP_ERROR_GENERAL
 
 
 class CQPErrorNoSuchCorpus(CQPError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.CQP_ERROR_NO_SUCH_CORPUS
+        self.code: int = specification.CQP_ERROR_NO_SUCH_CORPUS
 
 
 class CQPErrorInvalidField(CQPError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.CQP_ERROR_INVALID_FIELD
+        self.code: int = specification.CQP_ERROR_INVALID_FIELD
 
 
 class CQPErrorOutOfRange(CQPError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.CQP_ERROR_OUT_OF_RANGE
-        self.description = 'A number is out of range'
+        self.code: int = specification.CQP_ERROR_OUT_OF_RANGE
+        self.description: str = 'A number is out of range'
 
 
-lookup = {
+lookup: Dict[int, Type[CQiException]] = {
     specification.ERROR: Error,
     specification.ERROR_GENERAL_ERROR: ErrorGeneralError,
     specification.ERROR_CONNECT_REFUSED: ErrorConnectRefused,

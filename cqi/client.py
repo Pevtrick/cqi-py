@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 if TYPE_CHECKING:
     from .status import StatusByeOk, StatusConnectOk, StatusPingOk
 from .api import APIClient
@@ -28,7 +28,7 @@ class CQiClient:
         self,
         host: str,
         port: int = 4877,
-        timeout: int = 60,
+        timeout: Optional[float] = 60.0,
         version: str = '0.1'
     ):
         '''
@@ -38,7 +38,7 @@ class CQiClient:
         host (str): URL to the CQP server. For example,
             ``cqpserver.localhost`` or ``127.0.0.1``.
         port (int): Port the CQP server listens on. Default: ``4877``
-        timeout (int): Default timeout for API calls, in seconds. Default: ``60``
+        timeout (float): Default timeout for API calls, in seconds. Default: ``60.0``
         version (str): The version of the CQi protocol to use. Default: ``0.1``
         '''
         self.api: APIClient = APIClient(

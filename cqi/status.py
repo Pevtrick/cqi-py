@@ -1,3 +1,4 @@
+from typing import Dict, Optional, Type
 from .api import specification
 
 
@@ -6,34 +7,34 @@ class CQiStatus:
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = None
+        self.code: Optional[int] = None
 
 
 class StatusOk(CQiStatus):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.STATUS_OK
+        self.code: int = specification.STATUS_OK
 
 
 class StatusConnectOk(CQiStatus):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.STATUS_CONNECT_OK
+        self.code: int = specification.STATUS_CONNECT_OK
 
 
 class StatusByeOk(CQiStatus):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.STATUS_BYE_OK
+        self.code: int = specification.STATUS_BYE_OK
 
 
 class StatusPingOk(CQiStatus):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.code = specification.STATUS_PING_OK
+        self.code: int = specification.STATUS_PING_OK
 
 
-lookup = {
+lookup: Dict[int, Type[CQiStatus]] = {
     specification.STATUS_OK: StatusOk,
     specification.STATUS_CONNECT_OK: StatusConnectOk,
     specification.STATUS_BYE_OK: StatusByeOk,

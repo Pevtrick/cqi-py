@@ -1,7 +1,6 @@
-from typing import List, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 import socket
 import struct
-import time
 from . import specification
 from .. import errors
 from .. import status
@@ -27,7 +26,8 @@ class APIClient:
         ``cqpserver.localhost`` or ``127.0.0.1``.
     port (int): Port the CQP server listens on. Default: ``4877``
     socket (socket.socket): Socket for communicating with a CQP server.
-    timeout (int): Default timeout for API calls, in seconds. Default: ``60``
+    timeout (float): Default timeout for API calls, in seconds.
+        Default: ``60.0``
     version (str): The version of the CQi protocol to use. Default: ``0.1``
     '''
 
@@ -35,14 +35,15 @@ class APIClient:
         self,
         host: str,
         port: int = 4877,
-        timeout: int = 60,
+        timeout: Optional[float] = 60.0,
         version: str = '0.1'
     ):
         self.host: str = host
         self.port: int = port
         self.socket: socket.socket = socket.socket()
-        self.timeout: int = timeout
+        self.timeout: Optional[float] = timeout
         self.version: str = version
+        self.socket.settimeout(self.timeout)
 
     def ctrl_connect(
         self,
@@ -57,7 +58,7 @@ class APIClient:
 
     def ctrl_bye(self) -> status.StatusByeOk:
         self.__send_WORD(specification.CTRL_BYE)
-        response = self.__recv_response()
+        response: status.StatusByeOk = self.__recv_response()
         self.socket.close()
         return response
 
@@ -317,7 +318,12 @@ class APIClient:
         self.__send_INT(struc)
         return self.__recv_response()
 
-    def cl_alg2cpos(self, attribute: str, alg: int) -> Tuple[int, int, int, int]:
+    def cl_alg2cpos(
+        self,
+        attribute:
+        str,
+        alg: int
+    ) -> Tuple[int, int, int, int]:
         ''' returns (src_start, src_end, target_start, target_end) '''
         self.__send_WORD(specification.CL_ALG2CPOS)
         self.__send_STRING(attribute)
@@ -434,95 +440,72 @@ class APIClient:
         return self.__recv_response()
 
     def __recv_response(self):
-        byte_data = self.__recv_WORD()
-        response_type = byte_data >> 8
+        byte_data: int = self.__recv_WORD()
+        response_type: int = byte_data >> 8
         if response_type == specification.DATA:
-            return self.__recv_DATA(byte_data)
+            try:
+                return self.__recv_DATA_method_lookup[byte_data](self)
+            except KeyError:
+                raise errors.CQiException(f'Unknown data type: {byte_data}')
         elif response_type == specification.STATUS:
-            return status.lookup[byte_data]()
+            try:
+                return status.lookup[byte_data]()
+            except KeyError:
+                raise errors.CQiException(f'Unknown status code: {byte_data}')
+        elif response_type == specification.ERROR:
+            try:
+                raise errors.lookup[byte_data]()
+            except KeyError:
+                raise errors.CQiException(f'Unknown error code: {byte_data}')
         else:
-            raise errors.lookup.get(byte_data, errors.CQiException)()
-
-    def __recv_DATA(self, data_type):
-        if data_type == specification.DATA_BYTE:
-            return self.__recv_DATA_BYTE()
-        elif data_type == specification.DATA_BOOL:
-            return self.__recv_DATA_BOOL()
-        elif data_type == specification.DATA_INT:
-            return self.__recv_DATA_INT()
-        elif data_type == specification.DATA_STRING:
-            return self.__recv_DATA_STRING()
-        elif data_type == specification.DATA_BYTE_LIST:
-            return self.__recv_DATA_BYTE_LIST()
-        elif data_type == specification.DATA_BOOL_LIST:
-            return self.__recv_DATA_BOOL_LIST()
-        elif data_type == specification.DATA_INT_LIST:
-            return self.__recv_DATA_INT_LIST()
-        elif data_type == specification.DATA_STRING_LIST:
-            return self.__recv_DATA_STRING_LIST()
-        elif data_type == specification.DATA_INT_INT:
-            return self.__recv_DATA_INT_INT()
-        elif data_type == specification.DATA_INT_INT_INT_INT:
-            return self.__recv_DATA_INT_INT_INT_INT()
-        elif data_type == specification.DATA_INT_TABLE:
-            return self.__recv_DATA_INT_TABLE()
-        else:
-            raise errors.CQiException(f'Unknown data type: {data_type}')
-
-    def __recv_wrapper(self, bufsize: int) -> bytes:
-        start_time = time.time()
-        while time.time() - start_time < self.timeout:
-            # Check if the server already sent over the desired number of bytes
-            if len(self.socket.recv(bufsize, socket.MSG_PEEK)) == bufsize:
-                return self.socket.recv(bufsize)
-            time.sleep(0.05)
-        else:
-            raise errors.CQiException('Timeout: Not enough bytes')
+            raise errors.CQiException(
+                f'Unknown response type: {response_type}'
+            )
 
     def __recv_DATA_BYTE(self) -> int:
-        byte_data = self.__recv_wrapper(1)
+        byte_data: bytes = self.socket.recv(1, socket.MSG_WAITALL)
         return struct.unpack('!B', byte_data)[0]
 
     def __recv_DATA_BOOL(self) -> bool:
-        byte_data = self.__recv_wrapper(1)
+        byte_data: bytes = self.socket.recv(1, socket.MSG_WAITALL)
         return struct.unpack('!?', byte_data)[0]
 
     def __recv_DATA_INT(self) -> int:
-        byte_data = self.__recv_wrapper(4)
+        byte_data: bytes = self.socket.recv(4, socket.MSG_WAITALL)
         return struct.unpack('!i', byte_data)[0]
 
     def __recv_DATA_STRING(self) -> str:
-        n = self.__recv_WORD()
-        byte_data = self.__recv_wrapper(n)
+        n: int = self.__recv_WORD()
+        byte_data: bytes = self.socket.recv(n, socket.MSG_WAITALL)
         return struct.unpack(f'!{n}s', byte_data)[0].decode()
 
     def __recv_DATA_BYTE_LIST(self) -> List[int]:
-        data = []
-        n = self.__recv_DATA_INT()
+        data: List[int] = []
+        n: int = self.__recv_DATA_INT()
         while n > 0:
             data.append(self.__recv_DATA_BYTE())
             n -= 1
         return data
 
     def __recv_DATA_BOOL_LIST(self) -> List[bool]:
-        data = []
-        n = self.__recv_DATA_INT()
+        data: List[bool] = []
+        n: int = self.__recv_DATA_INT()
         while n > 0:
             data.append(self.__recv_DATA_BOOL())
             n -= 1
         return data
 
     def __recv_DATA_INT_LIST(self) -> List[int]:
-        data = []
-        n = self.__recv_DATA_INT()
+        data: List[int] = []
+        n: int = self.__recv_DATA_INT()
         while n > 0:
             data.append(self.__recv_DATA_INT())
             n -= 1
         return data
 
     def __recv_DATA_STRING_LIST(self) -> List[str]:
-        data = []
-        n = self.__recv_DATA_INT()
+        data: List[str] = []
+        n: int = self.__recv_DATA_INT()
         while n > 0:
             data.append(self.__recv_DATA_STRING())
             n -= 1
@@ -540,50 +523,64 @@ class APIClient:
         )
 
     def __recv_DATA_INT_TABLE(self) -> List[List[int]]:
-        rows = self.__recv_DATA_INT()
-        columns = self.__recv_DATA_INT()
-        data = []
+        rows: int = self.__recv_DATA_INT()
+        columns: int = self.__recv_DATA_INT()
+        data: List[List[int]] = []
         for i in range(0, rows):
-            row = []
+            row: List[int] = []
             for j in range(0, columns):
                 row.append(self.__recv_DATA_INT())
             data.append(row)
         return data
 
+    __recv_DATA_method_lookup: Dict[int, Callable] = {
+        769: __recv_DATA_BYTE,
+        770: __recv_DATA_BOOL,
+        771: __recv_DATA_INT,
+        772: __recv_DATA_STRING,
+        773: __recv_DATA_BYTE_LIST,
+        774: __recv_DATA_BOOL_LIST,
+        775: __recv_DATA_INT_LIST,
+        776: __recv_DATA_STRING_LIST,
+        777: __recv_DATA_INT_INT,
+        778: __recv_DATA_INT_INT_INT_INT,
+        779: __recv_DATA_INT_TABLE
+    }
+
     def __recv_WORD(self) -> int:
-        byte_data = self.__recv_wrapper(2)
+        byte_data: bytes = self.socket.recv(2, socket.MSG_WAITALL)
         return struct.unpack('!H', byte_data)[0]
 
     def __send_BYTE(self, byte_data: int):
-        data = struct.pack('!B', byte_data)
+        data: bytes = struct.pack('!B', byte_data)
         self.socket.sendall(data)
 
     def __send_BOOL(self, bool_data: bool):
-        data = struct.pack('!?', bool_data)
+        data: bytes = struct.pack('!?', bool_data)
         self.socket.sendall(data)
 
     def __send_INT(self, int_data: int):
-        data = struct.pack('!i', int_data)
+        data: bytes = struct.pack('!i', int_data)
         self.socket.sendall(data)
 
     def __send_STRING(self, string_data: str):
-        encoded_string_data = string_data.encode('utf-8')
-        n = len(encoded_string_data)
-        data = struct.pack(f'!H{n}s', n, encoded_string_data)
+        encoded_string_data: bytes = string_data.encode('utf-8')
+        n: int = len(encoded_string_data)
+        data: bytes = struct.pack(f'!H{n}s', n, encoded_string_data)
         self.socket.sendall(data)
 
     def __send_INT_LIST(self, int_list_data: List[int]):
-        n = len(int_list_data)
+        n: int = len(int_list_data)
         self.__send_INT(n)
         for int_data in int_list_data:
             self.__send_INT(int_data)
 
     def __send_STRING_LIST(self, string_list_data: List[str]):
-        n = len(string_list_data)
+        n: int = len(string_list_data)
         self.__send_INT(n)
         for string_data in string_list_data:
             self.__send_STRING(string_data)
 
     def __send_WORD(self, word_data: int):
-        data = struct.pack('!H', word_data)
+        data: bytes = struct.pack('!H', word_data)
         self.socket.sendall(data)
