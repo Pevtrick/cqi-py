@@ -1,6 +1,7 @@
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Tuple
 import socket
 import struct
+import time
 from . import specification
 from .. import errors
 from .. import status
@@ -35,15 +36,14 @@ class APIClient:
         self,
         host: str,
         port: int = 4877,
-        timeout: Optional[float] = 60.0,
+        timeout: float = 60.0,
         version: str = '0.1'
     ):
         self.host: str = host
         self.port: int = port
         self.socket: socket.socket = socket.socket()
-        self.timeout: Optional[float] = timeout
+        self.timeout: float = timeout
         self.version: str = version
-        self.socket.settimeout(self.timeout)
 
     def ctrl_connect(
         self,
@@ -462,21 +462,35 @@ class APIClient:
                 f'Unknown response type: {response_type}'
             )
 
+    def __recv(self, bufsize: int):
+        # This method should not be necessary but
+        # self.socket.recv(bufsize, socket.MSG_WAITALL)
+        # does not work for some reason
+        start_time = time.time()
+        while time.time() - start_time < self.timeout:
+            # Check if the server already sent over the desired number of bytes
+            if len(self.socket.recv(bufsize, socket.MSG_PEEK)) == bufsize:
+                return self.socket.recv(bufsize)
+            # Wait a bit before checking again
+            time.sleep(0.05)
+        raise TimeoutError()
+
     def __recv_DATA_BYTE(self) -> int:
-        byte_data: bytes = self.socket.recv(1, socket.MSG_WAITALL)
+        byte_data: bytes = self.__recv(1)
         return struct.unpack('!B', byte_data)[0]
 
     def __recv_DATA_BOOL(self) -> bool:
-        byte_data: bytes = self.socket.recv(1, socket.MSG_WAITALL)
+        byte_data: bytes = self.__recv(1)
         return struct.unpack('!?', byte_data)[0]
 
     def __recv_DATA_INT(self) -> int:
-        byte_data: bytes = self.socket.recv(4, socket.MSG_WAITALL)
+        byte_data: bytes = self.__recv(4)
         return struct.unpack('!i', byte_data)[0]
 
     def __recv_DATA_STRING(self) -> str:
         n: int = self.__recv_WORD()
-        byte_data: bytes = self.socket.recv(n, socket.MSG_WAITALL)
+        byte_data: bytes = self.__recv(n)
+        # return byte_data.decode()
         return struct.unpack(f'!{n}s', byte_data)[0].decode()
 
     def __recv_DATA_BYTE_LIST(self) -> List[int]:
@@ -548,7 +562,7 @@ class APIClient:
     }
 
     def __recv_WORD(self) -> int:
-        byte_data: bytes = self.socket.recv(2, socket.MSG_WAITALL)
+        byte_data: bytes = self.__recv(2)
         return struct.unpack('!H', byte_data)[0]
 
     def __send_BYTE(self, byte_data: int):

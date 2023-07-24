@@ -1,4 +1,4 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .status import StatusByeOk, StatusConnectOk, StatusPingOk
 from .api import APIClient
@@ -28,7 +28,7 @@ class CQiClient:
         self,
         host: str,
         port: int = 4877,
-        timeout: Optional[float] = 60.0,
+        timeout: float = 60.0,
         version: str = '0.1'
     ):
         '''
