@@ -452,7 +452,7 @@ class APIClient:
                 return status.lookup[byte_data]()
             except KeyError:
                 raise errors.CQiException(f'Unknown status code: {byte_data}')
-        elif response_type == specification.ERROR:
+        elif response_type in errors.lookup:
             try:
                 raise errors.lookup[byte_data]()
             except KeyError:

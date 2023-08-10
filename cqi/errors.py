@@ -16,6 +16,7 @@ class CQiException(Exception):
 
 
 class Error(CQiException):
+    ''' A base class for CQI_ERROR_* erorr types. '''
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code: int = specification.ERROR
@@ -46,6 +47,7 @@ class ErrorSyntaxError(Error):
 
 
 class CLError(CQiException):
+    ''' A base class for CQI_CL_ERROR_* error types. '''
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code: int = specification.CL_ERROR
@@ -102,7 +104,7 @@ class CLErrorInternal(CLError):
 
 
 class CQPError(CQiException):
-    # CQP error messages yet to be defined
+    ''' A base class for CQI_CQP_ERROR_* error types. '''
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.code: int = specification.CQP_ERROR
