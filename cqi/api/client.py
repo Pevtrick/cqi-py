@@ -442,25 +442,51 @@ class APIClient:
     def __recv_response(self):
         byte_data: int = self.__recv_WORD()
         response_type: int = byte_data >> 8
+
         if response_type == specification.DATA:
-            try:
-                return self.__recv_DATA_method_lookup[byte_data](self)
-            except KeyError:
-                raise errors.CQiException(f'Unknown data type: {byte_data}')
-        elif response_type == specification.STATUS:
+            if byte_data == specification.DATA_BYTE:
+                return self.__recv_DATA_BYTE()
+            if byte_data == specification.DATA_BOOL:
+                return self.__recv_DATA_BOOL()
+            if byte_data == specification.DATA_INT:
+                return self.__recv_DATA_INT()
+            if byte_data == specification.DATA_STRING:
+                return self.__recv_DATA_STRING()
+            if byte_data == specification.DATA_BYTE_LIST:
+                return self.__recv_DATA_BYTE_LIST()
+            if byte_data == specification.DATA_BOOL_LIST:
+                return self.__recv_DATA_BOOL_LIST()
+            if byte_data == specification.DATA_INT_LIST:
+                return self.__recv_DATA_INT_LIST()
+            if byte_data == specification.DATA_STRING_LIST:
+                return self.__recv_DATA_STRING_LIST()
+            if byte_data == specification.DATA_INT_INT:
+                return self.__recv_DATA_INT_INT()
+            if byte_data == specification.DATA_INT_INT_INT_INT:
+                return self.__recv_DATA_INT_INT_INT_INT()
+            if byte_data == specification.DATA_INT_TABLE:
+                return self.__recv_DATA_INT_TABLE()
+            raise errors.CQiException(f'Unknown data type: {byte_data}')
+
+        if response_type == specification.STATUS:
             try:
                 return status.lookup[byte_data]()
             except KeyError:
                 raise errors.CQiException(f'Unknown status code: {byte_data}')
-        elif response_type in errors.lookup:
+
+        if (
+            response_type == specification.ERROR
+            or response_type == specification.CL_ERROR
+            or response_type == specification.CQP_ERROR
+        ):
             try:
                 raise errors.lookup[byte_data]()
             except KeyError:
                 raise errors.CQiException(f'Unknown error code: {byte_data}')
-        else:
-            raise errors.CQiException(
-                f'Unknown response type: {response_type}'
-            )
+
+        raise errors.CQiException(
+            f'Unknown response type: {response_type}'
+        )
 
     def __recv(self, bufsize: int):
         # This method should not be necessary but
@@ -490,8 +516,7 @@ class APIClient:
     def __recv_DATA_STRING(self) -> str:
         n: int = self.__recv_WORD()
         byte_data: bytes = self.__recv(n)
-        # return byte_data.decode()
-        return struct.unpack(f'!{n}s', byte_data)[0].decode()
+        return byte_data.decode()
 
     def __recv_DATA_BYTE_LIST(self) -> List[int]:
         data: List[int] = []
@@ -547,20 +572,6 @@ class APIClient:
             data.append(row)
         return data
 
-    __recv_DATA_method_lookup: Dict[int, Callable] = {
-        769: __recv_DATA_BYTE,
-        770: __recv_DATA_BOOL,
-        771: __recv_DATA_INT,
-        772: __recv_DATA_STRING,
-        773: __recv_DATA_BYTE_LIST,
-        774: __recv_DATA_BOOL_LIST,
-        775: __recv_DATA_INT_LIST,
-        776: __recv_DATA_STRING_LIST,
-        777: __recv_DATA_INT_INT,
-        778: __recv_DATA_INT_INT_INT_INT,
-        779: __recv_DATA_INT_TABLE
-    }
-
     def __recv_WORD(self) -> int:
         byte_data: bytes = self.__recv(2)
         return struct.unpack('!H', byte_data)[0]
@@ -578,9 +589,9 @@ class APIClient:
         self.socket.sendall(data)
 
     def __send_STRING(self, string_data: str):
-        encoded_string_data: bytes = string_data.encode('utf-8')
-        n: int = len(encoded_string_data)
-        data: bytes = struct.pack(f'!H{n}s', n, encoded_string_data)
+        data: bytes = string_data.encode()
+        n: int = len(data)
+        self.__send_WORD(n)
         self.socket.sendall(data)
 
     def __send_INT_LIST(self, int_list_data: List[int]):

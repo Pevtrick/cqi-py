@@ -136,12 +136,10 @@ class CQPErrorOutOfRange(CQPError):
 
 
 lookup: Dict[int, Type[CQiException]] = {
-    specification.ERROR: Error,
     specification.ERROR_GENERAL_ERROR: ErrorGeneralError,
     specification.ERROR_CONNECT_REFUSED: ErrorConnectRefused,
     specification.ERROR_USER_ABORT: ErrorUserAbort,
     specification.ERROR_SYNTAX_ERROR: ErrorSyntaxError,
-    specification.CL_ERROR: CLError,
     specification.CL_ERROR_NO_SUCH_ATTRIBUTE: CLErrorNoSuchAttribute,
     specification.CL_ERROR_WRONG_ATTRIBUTE_TYPE: CLErrorWrongAttributeType,
     specification.CL_ERROR_OUT_OF_RANGE: CLErrorOutOfRange,
@@ -149,7 +147,6 @@ lookup: Dict[int, Type[CQiException]] = {
     specification.CL_ERROR_CORPUS_ACCESS: CLErrorCorpusAccess,
     specification.CL_ERROR_OUT_OF_MEMORY: CLErrorOutOfMemory,
     specification.CL_ERROR_INTERNAL: CLErrorInternal,
-    specification.CQP_ERROR: CQPError,
     specification.CQP_ERROR_GENERAL: CQPErrorGeneral,
     specification.CQP_ERROR_NO_SUCH_CORPUS: CQPErrorNoSuchCorpus,
     specification.CQP_ERROR_INVALID_FIELD: CQPErrorInvalidField,
