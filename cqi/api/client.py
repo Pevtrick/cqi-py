@@ -15,35 +15,38 @@ class APIClient:
     Example:
     >>> import cqi
     >>> client = cqi.APIClient('127.0.0.1')
-    >>> client.ctrl_connect('user', 'password')
-    258  # CQI_STATUS_CONNECT_OK
-    >>> client.ctrl_ping()
-    260  # CQI_STATUS_PING_OK
-    >>> client.ctrl_bye()
-    259  # CQI_STATUS_BYE_OK
+    >>> client.ctrl_connect('username', 'password')
+    <class 'cqi.status.StatusConnectOk'>
+    >>> client.ping()
+    <class 'cqi.status.StatusPingOk'>
 
-    Attributes:
-    host (str): URL to the CQP server. For example,
-        ``cqpserver.localhost`` or ``127.0.0.1``.
-    port (int): Port the CQP server listens on. Default: ``4877``
-    socket (socket.socket): Socket for communicating with a CQP server.
+    Args:
+    host (str): URL to the CQP server.
+        For example ``cqpserver.localhost`` or ``127.0.0.1``.
+    port (int): Port the CQP server listens on.
+        Default: ``4877``
+    version (str): The version of the CQi protocol to use.
+        Default: ``0.1``
+    max_bufsize (int): Maximum number of bytes to receive at once.
+        Default: ``4096``
     timeout (float): Default timeout for API calls, in seconds.
         Default: ``60.0``
-    version (str): The version of the CQi protocol to use. Default: ``0.1``
     '''
 
     def __init__(
         self,
         host: str,
         port: int = 4877,
-        timeout: float = 60.0,
-        version: str = '0.1'
+        version: str = '0.1',
+        max_bufsize: int = 4096,
+        timeout: float = 60.0
     ):
         self.host: str = host
         self.port: int = port
-        self.socket: socket.socket = socket.socket()
-        self.timeout: float = timeout
         self.version: str = version
+        self.socket: socket.socket = socket.socket()
+        self.max_bufsize: int = max_bufsize
+        self.timeout: float = timeout
 
     def ctrl_connect(
         self,
@@ -488,34 +491,57 @@ class APIClient:
             f'Unknown response type: {response_type}'
         )
 
-    def __recv(self, bufsize: int):
-        # This method should not be necessary but
-        # self.socket.recv(bufsize, socket.MSG_WAITALL)
-        # does not work for some reason
-        start_time = time.time()
-        while time.time() - start_time < self.timeout:
-            # Check if the server already sent over the desired number of bytes
-            if len(self.socket.recv(bufsize, socket.MSG_PEEK)) == bufsize:
-                return self.socket.recv(bufsize)
-            # Wait a bit before checking again
-            time.sleep(0.05)
-        raise TimeoutError()
+    def __recv_bytes(self, num_bytes: int) -> bytes:
+        if num_bytes < 0:
+            raise ValueError('num_bytes must be greater or equal than zero')
+        if num_bytes == 0:
+            return b''
+
+        # List of byte objects received so far
+        received_bytes: List[bytes] = []
+        # Number of bytes received so far
+        num_received_bytes: int = 0
+        # Reference to calculate timeout
+        timeout_reference: float = time.time()
+
+        # Receive bytes until we have received `num_bytes` bytes
+        while True:
+            received_bytes.append(
+                self.socket.recv(
+                    min(
+                        num_bytes - num_received_bytes,
+                        self.max_bufsize
+                    )
+                )
+            )
+
+            if len(received_bytes[-1]) == 0:
+                received_bytes.pop()
+                if time.time() - timeout_reference > self.timeout:
+                    raise TimeoutError()
+                continue
+            else:
+                num_received_bytes += len(received_bytes[-1])
+                timeout_reference = time.time()
+
+            if num_received_bytes == num_bytes:
+                return b''.join(received_bytes)
 
     def __recv_DATA_BYTE(self) -> int:
-        byte_data: bytes = self.__recv(1)
+        byte_data: bytes = self.__recv_bytes(1)
         return struct.unpack('!B', byte_data)[0]
 
     def __recv_DATA_BOOL(self) -> bool:
-        byte_data: bytes = self.__recv(1)
+        byte_data: bytes = self.__recv_bytes(1)
         return struct.unpack('!?', byte_data)[0]
 
     def __recv_DATA_INT(self) -> int:
-        byte_data: bytes = self.__recv(4)
+        byte_data: bytes = self.__recv_bytes(4)
         return struct.unpack('!i', byte_data)[0]
 
     def __recv_DATA_STRING(self) -> str:
         n: int = self.__recv_WORD()
-        byte_data: bytes = self.__recv(n)
+        byte_data: bytes = self.__recv_bytes(n)
         return byte_data.decode()
 
     def __recv_DATA_BYTE_LIST(self) -> List[int]:
@@ -573,7 +599,7 @@ class APIClient:
         return data
 
     def __recv_WORD(self) -> int:
-        byte_data: bytes = self.__recv(2)
+        byte_data: bytes = self.__recv_bytes(2)
         return struct.unpack('!H', byte_data)[0]
 
     def __send_BYTE(self, byte_data: int):

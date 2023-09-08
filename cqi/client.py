@@ -13,40 +13,26 @@ class CQiClient:
     Example:
     >>> import cqi
     >>> client = cqi.CQiClient('127.0.0.1')
-    >>> client.connect()
-    258  # CQI_STATUS_CONNECT_OK
+    >>> client.connect('username', 'password')
+    <class 'cqi.status.StatusConnectOk'>
     >>> client.ping()
-    260  # CQI_STATUS_PING_OK
-    >>> client.disconnect()
-    259  # CQI_STATUS_BYE_OK
+    <class 'cqi.status.StatusPingOk'>
 
-    Attributes:
-    api (APIClient): An API client pointing to the specified CQP server.
+    Args:
+    host (str): URL to the CQP server.
+        For example ``cqpserver.localhost`` or ``127.0.0.1``.
+    port (int): Port the CQP server listens on.
+        Default: ``4877``
+    version (str): The version of the CQi protocol to use.
+        Default: ``0.1``
+    max_bufsize (int): Maximum number of bytes to receive at once.
+        Default: ``4096``
+    timeout (float): Default timeout for API calls, in seconds.
+        Default: ``60.0``
     '''
 
-    def __init__(
-        self,
-        host: str,
-        port: int = 4877,
-        timeout: float = 60.0,
-        version: str = '0.1'
-    ):
-        '''
-        CQiClient constructor
-
-        Args:
-        host (str): URL to the CQP server. For example,
-            ``cqpserver.localhost`` or ``127.0.0.1``.
-        port (int): Port the CQP server listens on. Default: ``4877``
-        timeout (float): Default timeout for API calls, in seconds. Default: ``60.0``
-        version (str): The version of the CQi protocol to use. Default: ``0.1``
-        '''
-        self.api: APIClient = APIClient(
-            host,
-            port=port,
-            timeout=timeout,
-            version=version
-        )
+    def __init__(self, *args, **kwargs):
+        self.api: APIClient = APIClient(*args, **kwargs)
 
     @property
     def corpora(self) -> CorpusCollection:
