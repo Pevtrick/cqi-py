@@ -4,11 +4,11 @@ if TYPE_CHECKING:
     from ..status import StatusOk
     from .attributes import PositionalAttribute
     from .corpora import Corpus
-from ..api.specification import (
-    CONST_FIELD_KEYWORD,
-    CONST_FIELD_MATCH,
-    CONST_FIELD_MATCHEND,
-    CONST_FIELD_TARGET
+from ..constants import (
+    FIELD_KEYWORD,
+    FIELD_MATCH,
+    FIELD_MATCHEND,
+    FIELD_TARGET
 )
 from .resource import Collection, Model
 
@@ -37,7 +37,7 @@ class Subcorpus(Model):
     def dump(self, field: int, first: int, last: int) -> List[int]:
         '''
         Dump the values of <field> for match ranges <first> .. <last> in
-        subcorpus. <field> is one of the CQI_CONST_FIELD_* constants.
+        subcorpus. <field> is one of the cqi.constants.FIELD_* constants.
         '''
         return self.client.api.cqp_dump_subcorpus(
             self.api_name,
@@ -58,9 +58,9 @@ class Subcorpus(Model):
         returns <n> (id, frequency) pairs flattened into a list of size 2*<n>
 
         field is one of
-        - CQI_CONST_FIELD_MATCH
-        - CQI_CONST_FIELD_TARGET
-        - CQI_CONST_FIELD_KEYWORD
+        - cqi.constants.FIELD_MATCH
+        - cqi.constants.FIELD_TARGET
+        - cqi.constants.FIELD_KEYWORD
 
         NB: pairs are sorted by frequency desc.
         '''
@@ -107,14 +107,14 @@ class SubcorpusCollection(Collection):
     def _get(self, subcorpus_name: str) -> Dict:
         api_name: str = f'{self.corpus.api_name}:{subcorpus_name}'
         fields: Dict[str, int] = {}
-        if self.client.api.cqp_subcorpus_has_field(api_name, CONST_FIELD_MATCH):
-            fields['match'] = CONST_FIELD_MATCH
-        if self.client.api.cqp_subcorpus_has_field(api_name, CONST_FIELD_MATCHEND):
-            fields['matchend'] = CONST_FIELD_MATCHEND
-        if self.client.api.cqp_subcorpus_has_field(api_name, CONST_FIELD_TARGET):
-            fields['target'] = CONST_FIELD_TARGET
-        if self.client.api.cqp_subcorpus_has_field(api_name, CONST_FIELD_KEYWORD):
-            fields['keyword'] = CONST_FIELD_KEYWORD
+        if self.client.api.cqp_subcorpus_has_field(api_name, FIELD_MATCH):
+            fields['match'] = FIELD_MATCH
+        if self.client.api.cqp_subcorpus_has_field(api_name, FIELD_MATCHEND):
+            fields['matchend'] = FIELD_MATCHEND
+        if self.client.api.cqp_subcorpus_has_field(api_name, FIELD_TARGET):
+            fields['target'] = FIELD_TARGET
+        if self.client.api.cqp_subcorpus_has_field(api_name, FIELD_KEYWORD):
+            fields['keyword'] = FIELD_KEYWORD
         return {
             'api_name': api_name,
             'fields': fields,
